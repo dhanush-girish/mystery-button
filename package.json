@@ -1,0 +1,19 @@
+{
+  "name": "mystery-button",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && node --watch index.js",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "build": "cd client && npm run build"
+  },
+  "dependencies": {
+    "@clerk/backend": "^1.21.0",
+    "@neondatabase/serverless": "^1.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
