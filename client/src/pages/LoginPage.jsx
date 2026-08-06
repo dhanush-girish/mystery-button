@@ -31,7 +31,7 @@ function LoginPage() {
         <h1 className="login-title">THE MYSTERY BUTTON</h1>
         <p className="login-subtitle">Do you dare to click?</p>
         <button className="enter-button" onClick={handleEnter}>
-          INTRODUCING THE MYSTERY BUTTON
+          JOIN THE BATTLE
         </button>
       </div>
     </div>
