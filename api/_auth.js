@@ -1,9 +1,4 @@
-import { createClerkClient } from '@clerk/backend';
-
-const clerk = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
-  publishableKey: process.env.CLERK_PUBLISHABLE_KEY || process.env.VITE_CLERK_PUBLISHABLE_KEY,
-});
+import { verifyToken } from '@clerk/backend';
 
 /**
  * Verifies the Clerk JWT from the Authorization header.
@@ -19,7 +14,9 @@ export async function verifyAuth(req, res) {
   const token = authHeader.split(' ')[1];
 
   try {
-    const payload = await clerk.verifyToken(token);
+    const payload = await verifyToken(token, {
+      secretKey: process.env.CLERK_SECRET_KEY,
+    });
     return payload.sub; // This is the Clerk userId
   } catch (err) {
     console.error('Token verification failed:', err.message);
@@ -27,3 +24,4 @@ export async function verifyAuth(req, res) {
     return null;
   }
 }
+
