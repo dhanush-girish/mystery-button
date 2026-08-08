@@ -357,6 +357,14 @@ a {
   justify-content: space-between;
   padding: 10px 0;
   margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+@media (max-width: 600px) {
+  .game-header {
+    justify-content: center;
+  }
 }
 
 .leaderboard-link {
@@ -1122,19 +1130,27 @@ a {
 /* Responsive Podium */
 @media (max-width: 600px) {
   .podium-container {
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
+    gap: 4px;
+    padding: 0;
   }
   .podium-place {
-    width: 100%;
-    max-width: 260px;
+    width: 32%;
+  }
+  .stickman {
+    transform: scale(0.65);
+    transform-origin: bottom center;
+    margin-bottom: -15px;
   }
   .podium-block {
-    min-height: auto !important;
-    padding-bottom: 20px;
+    padding: 8px 4px 10px;
   }
-  .podium-block::after {
-    display: none;
-  }
+  .rank-1 .podium-block { min-height: 160px; }
+  .rank-2 .podium-block { min-height: 120px; }
+  .rank-3 .podium-block { min-height: 100px; }
+  
+  .podium-rank-number { font-size: 2rem; margin-bottom: 2px; }
+  .podium-name { font-size: 0.8rem; margin-bottom: 2px; }
+  .podium-course { font-size: 0.6rem; margin-bottom: 1px; }
+  .podium-batch { font-size: 0.55rem; margin-bottom: 2px; }
+  .podium-score-val { font-size: 0.9rem; }
 }
