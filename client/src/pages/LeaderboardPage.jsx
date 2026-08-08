@@ -153,7 +153,6 @@ function LeaderboardPage() {
                         {medal ? (
                           <span className="medal-rank">
                             <span className="medal-emoji">{medal}</span>
-                            <span>{rank}</span>
                           </span>
                         ) : rank}
                       </td>

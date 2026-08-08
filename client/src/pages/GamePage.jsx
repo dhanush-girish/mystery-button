@@ -258,7 +258,7 @@ function GamePage() {
           <option value="suuuuuuuuuuuuu">suuuuuuuuuuuuu.mp3</option>
         </select>
         <Link to="/leaderboard" className="leaderboard-link" style={{ fontSize: '1rem', padding: '6px 12px', whiteSpace: 'nowrap' }}>
-          🏆 BOARD
+          🏆 LEADERBOARD
         </Link>
       </div>
 
