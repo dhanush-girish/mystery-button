@@ -67,6 +67,21 @@ function LeaderboardPage() {
     setBatchFilter('');
   };
 
+  const top3 = players.slice(0, 3);
+  const restPlayers = players.slice(3);
+
+  // Helper to get ordered players for podium (Rank 2, Rank 1, Rank 3)
+  const podiumPlayers = [];
+  if (top3[1]) podiumPlayers.push({ ...top3[1], podiumRank: 2 });
+  if (top3[0]) podiumPlayers.push({ ...top3[0], podiumRank: 1 });
+  if (top3[2]) podiumPlayers.push({ ...top3[2], podiumRank: 3 });
+
+  // Sort by podium placement order: 2, 1, 3
+  podiumPlayers.sort((a, b) => {
+    const order = { 2: 1, 1: 2, 3: 3 };
+    return order[a.podiumRank] - order[b.podiumRank];
+  });
+
   return (
     <div className="leaderboard-page">
       <div className="leaderboard-card">
@@ -120,7 +135,42 @@ function LeaderboardPage() {
           </button>
         )}
 
-        {/* Table */}
+        {/* Podium for Top 3 */}
+        {!loading && podiumPlayers.length > 0 && (
+          <div className="podium-container">
+            {podiumPlayers.map((player) => (
+              <div key={player.podiumRank} className={`podium-place rank-${player.podiumRank}`}>
+                <div className="stickman">
+                  <div className="stickman-head">
+                    {player.profile_image_url ? (
+                      <img src={player.profile_image_url} alt={player.name} />
+                    ) : (
+                      <span className="placeholder">?</span>
+                    )}
+                  </div>
+                  <div className="stickman-body">
+                    <div className="stickman-arms"></div>
+                    <div className="stickman-legs">
+                      <div className="stickman-leg left"></div>
+                      <div className="stickman-leg right"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="podium-block">
+                  <div className="podium-rank-number">{player.podiumRank}</div>
+                  <div className="podium-name">{player.name}</div>
+                  <div className="podium-score">
+                    {player.course}<br/>
+                    {player.batch}<br/>
+                    {Number(player.score).toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Table for remaining players */}
         {loading ? (
           <div className="loading" style={{ minHeight: 200 }}>
             Loading...
@@ -138,32 +188,24 @@ function LeaderboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {players.map((player, index) => (
-                  <tr
-                    key={index}
-                    className={index < 3 ? `top-${index + 1}` : ''}
-                  >
-                    <td className="rank-cell">
-                      {index === 0
-                        ? '🥇'
-                        : index === 1
-                        ? '🥈'
-                        : index === 2
-                        ? '🥉'
-                        : index + 1}
-                    </td>
-                    <td>{player.name}</td>
-                    <td className="course-cell">
-                      <div className="course-marquee">
-                        <span>{player.course}</span>
-                      </div>
-                    </td>
-                    <td>{player.batch}</td>
-                    <td className="score-cell">
-                      {Number(player.score).toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
+                {restPlayers.map((player, idx) => {
+                  const actualRank = idx + 4; // since top 3 are in podium
+                  return (
+                    <tr key={actualRank}>
+                      <td className="rank-cell">{actualRank}</td>
+                      <td>{player.name}</td>
+                      <td className="course-cell">
+                        <div className="course-marquee">
+                          <span>{player.course}</span>
+                        </div>
+                      </td>
+                      <td>{player.batch}</td>
+                      <td className="score-cell">
+                        {Number(player.score).toLocaleString()}
+                      </td>
+                    </tr>
+                  );
+                })}
                 {players.length === 0 && (
                   <tr>
                     <td colSpan={5} className="empty-cell">

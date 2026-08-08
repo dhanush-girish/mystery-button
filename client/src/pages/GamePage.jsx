@@ -10,6 +10,13 @@ const RANK_THRESHOLDS = [50, 25, 10];
 const BATCH_INTERVAL_MS = 3000; // Sync score every 3s
 const RANK_INTERVAL_MS = 10000; // Check rank every 10s
 
+const MILESTONES = {
+  1000: { image: '1000.jpeg', caption: 'Choodu chaya for the choodu fingers. Keep clicking👍' },
+  2500: { image: '2500.jpeg', caption: 'Aliya, thalaruthu! 🥵, Grab this juice👍' },
+  5000: { image: '5000.jpeg', caption: 'System Hang Aayi! 🚨 You literally need wings to mash any faster' },
+  10000: { image: '10000.jpeg', caption: 'Nee puliyada puli! 🐅 Ultimate hydration level unlocked. Drink the Karikku and survive.' },
+};
+
 function GamePage() {
   const { getToken } = useAuth();
   const navigate = useNavigate();
@@ -21,6 +28,9 @@ function GamePage() {
   const [muted, setMuted] = useState(false);
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentRank, setCurrentRank] = useState(null);
+  const [selectedSfx, setSelectedSfx] = useState('faaah');
+  const [milestonePopup, setMilestonePopup] = useState(null);
 
   // --- Refs ---
   const pendingClicks = useRef(0);
@@ -103,6 +113,7 @@ function GamePage() {
         const data = await res.json();
 
         if (data.rank !== null) {
+          setCurrentRank(data.rank);
           // Find the player's current bracket
           let currentBracket = Infinity;
           for (const threshold of RANK_THRESHOLDS) {
@@ -168,7 +179,16 @@ function GamePage() {
   // --- Handle button press ---
   const handlePress = useCallback((x, y) => {
     // 1. Instantly update UI score
-    setScore((prev) => prev + 1);
+    setScore((prev) => {
+      const newScore = prev + 1;
+      
+      // Check for milestones
+      if (newScore === 1000 || newScore === 2500 || newScore === 5000 || newScore === 10000) {
+        setMilestonePopup(newScore);
+      }
+      
+      return newScore;
+    });
     pendingClicks.current += 1;
 
     // 2. Spawn +1 particle at click coordinates
@@ -181,7 +201,7 @@ function GamePage() {
     // 3. Play sound effect (cloned audio for overlap)
     if (!mutedRef.current) {
       try {
-        const audio = new Audio('/faaah.mp3');
+        const audio = new Audio(`/${selectedSfx}.mp3`);
         audio.volume = 0.5;
         audio.play().catch(() => {
           // Ignore autoplay policy errors
@@ -190,7 +210,7 @@ function GamePage() {
         // Audio not available
       }
     }
-  }, []);
+  }, [selectedSfx]);
 
   // --- Render ---
   if (loading) {
@@ -199,9 +219,28 @@ function GamePage() {
 
   return (
     <div className="game-page">
-      {/* Header: Mute + Leaderboard */}
+      {/* Header: Mute + SFX + Leaderboard */}
       <div className="game-header">
-        <MuteToggle muted={muted} onToggle={() => setMuted((prev) => !prev)} />
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <MuteToggle muted={muted} onToggle={() => setMuted((prev) => !prev)} />
+          <select 
+            value={selectedSfx} 
+            onChange={(e) => setSelectedSfx(e.target.value)}
+            style={{
+              fontFamily: "'Bangers', cursive",
+              fontSize: '1.2rem',
+              padding: '4px 8px',
+              border: '3px solid #111',
+              boxShadow: '3px 3px 0 #111',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="faaah">faaah.mp3</option>
+            <option value="faaah-2">faaah-2.mp3</option>
+            <option value="mario-jump">mario-jump.mp3</option>
+            <option value="suuuuuuuuuuuuu">suuuuuuuuuuuuu.mp3</option>
+          </select>
+        </div>
         <Link to="/leaderboard" className="leaderboard-link">
           🏆 LEADERBOARD
         </Link>
@@ -213,6 +252,11 @@ function GamePage() {
         <p className="player-greeting">Go crazy, {playerName}!</p>
 
         <div className="score-display">
+          {currentRank && (
+            <span style={{ fontSize: '1.2rem', color: '#555', marginBottom: '-5px' }}>
+              RANK: #{currentRank}
+            </span>
+          )}
           <span className="score-label">SCORE</span>
           <span className="score-value">{score.toLocaleString()}</span>
         </div>
@@ -242,6 +286,54 @@ function GamePage() {
 
       {/* Rank Achievement Toast */}
       {toast && <RankToast message={toast} />}
+
+      {/* Milestone Popup */}
+      {milestonePopup && MILESTONES[milestonePopup] && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 100000,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div style={{
+            backgroundColor: '#fff', border: '5px solid #111', boxShadow: '8px 8px 0 #111',
+            padding: '25px', textAlign: 'center', maxWidth: '400px', width: '90%', transform: 'rotate(-1deg)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center'
+          }}>
+            <h2 style={{ fontFamily: "'Bangers', cursive", fontSize: '2.8rem', color: '#ff1493', textShadow: '2px 2px 0 #111', margin: '0 0 15px 0', letterSpacing: '2px' }}>
+              MILESTONE UNLOCKED!
+            </h2>
+            <img 
+              src={`/${MILESTONES[milestonePopup].image}`} 
+              alt={`Milestone ${milestonePopup}`} 
+              style={{ width: '100%', border: '4px solid #111', marginBottom: '20px', borderRadius: '4px' }}
+              onError={(e) => {
+                e.target.style.display = 'none'; // hide if placeholder image not found
+              }}
+            />
+            <p style={{ fontFamily: "'Bangers', cursive", fontSize: '1.6rem', color: '#333', marginBottom: '25px', lineHeight: '1.2', letterSpacing: '1px' }}>
+              {MILESTONES[milestonePopup].caption}
+            </p>
+            <button 
+              onClick={() => setMilestonePopup(null)}
+              style={{
+                fontFamily: "'Bangers', cursive", fontSize: '1.8rem', padding: '12px 25px',
+                backgroundColor: '#00cfff', color: '#fff', border: '4px solid #111', boxShadow: '5px 5px 0 #111',
+                cursor: 'pointer', transition: 'transform 0.1s, box-shadow 0.1s', letterSpacing: '2px'
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.transform = 'translateY(4px)';
+                e.currentTarget.style.boxShadow = '1px 1px 0 #111';
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.style.transform = 'none';
+                e.currentTarget.style.boxShadow = '5px 5px 0 #111';
+              }}
+            >
+              THANKS ANNA
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

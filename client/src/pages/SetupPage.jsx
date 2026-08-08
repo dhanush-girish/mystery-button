@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import SearchDropdown from '../components/SearchDropdown';
 
 const COURSES = [
@@ -38,6 +38,7 @@ const BATCHES = [
 
 function SetupPage() {
   const { getToken } = useAuth();
+  const { user } = useUser();
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
@@ -99,6 +100,7 @@ function SetupPage() {
           name: name.trim(),
           course,
           batch,
+          profile_image_url: user?.imageUrl || null,
         }),
       });
 

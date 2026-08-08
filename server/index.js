@@ -34,17 +34,17 @@ app.get('/api/player', requireAuth(), async (req, res) => {
 app.post('/api/player', requireAuth(), async (req, res) => {
   try {
     const { userId } = req.auth;
-    const { name, course, batch } = req.body;
+    const { name, course, batch, profile_image_url } = req.body;
 
     if (!name || !course || !batch) {
       return res.status(400).json({ error: 'Name, course, and batch are required' });
     }
 
     await sql`
-      INSERT INTO players (clerk_id, name, course, batch, score)
-      VALUES (${userId}, ${name}, ${course}, ${batch}, 0)
+      INSERT INTO players (clerk_id, name, course, batch, score, profile_image_url)
+      VALUES (${userId}, ${name}, ${course}, ${batch}, 0, ${profile_image_url || null})
       ON CONFLICT (clerk_id)
-      DO UPDATE SET name = ${name}, course = ${course}, batch = ${batch}
+      DO UPDATE SET name = ${name}, course = ${course}, batch = ${batch}, profile_image_url = COALESCE(${profile_image_url || null}, players.profile_image_url)
     `;
 
     return res.json({ success: true });
@@ -86,7 +86,7 @@ app.get('/api/leaderboard', async (req, res) => {
 
     if (course && batch) {
       rows = await sql`
-        SELECT name, course, batch, score
+        SELECT name, course, batch, score, profile_image_url
         FROM players
         WHERE course = ${course} AND batch = ${batch}
         ORDER BY score DESC
@@ -94,7 +94,7 @@ app.get('/api/leaderboard', async (req, res) => {
       `;
     } else if (course) {
       rows = await sql`
-        SELECT name, course, batch, score
+        SELECT name, course, batch, score, profile_image_url
         FROM players
         WHERE course = ${course}
         ORDER BY score DESC
@@ -102,7 +102,7 @@ app.get('/api/leaderboard', async (req, res) => {
       `;
     } else if (batch) {
       rows = await sql`
-        SELECT name, course, batch, score
+        SELECT name, course, batch, score, profile_image_url
         FROM players
         WHERE batch = ${batch}
         ORDER BY score DESC
@@ -110,7 +110,7 @@ app.get('/api/leaderboard', async (req, res) => {
       `;
     } else {
       rows = await sql`
-        SELECT name, course, batch, score
+        SELECT name, course, batch, score, profile_image_url
         FROM players
         ORDER BY score DESC
         LIMIT 100
