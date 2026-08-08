@@ -301,9 +301,6 @@ function GamePage() {
           🤫 Bribe Dev for +1000 Points
         </button>
 
-        <button className="support-btn" style={{ fontSize: '0.9rem' }} onClick={() => setChayaPopup(true)}>
-          Support the dev team by buying them chaya! ☕ (Not Bribes 🛑)
-        </button>
       </div>
 
       {/* +1 Floating VFX */}
@@ -371,10 +368,21 @@ function GamePage() {
               loop 
               muted 
               playsInline 
+              controls
               style={{ width: '100%', maxWidth: '300px', border: '4px solid #111', marginBottom: '20px' }} 
             />
-            <button className="support-close-btn" onClick={() => setBribePopup(false)}>
+            <button className="support-close-btn" onClick={() => setBribePopup(false)} style={{ marginBottom: '15px' }}>
               I REPENT! 🙏
+            </button>
+            <button 
+              className="support-btn" 
+              style={{ fontSize: '0.9rem', marginTop: '0' }} 
+              onClick={() => {
+                setBribePopup(false);
+                setChayaPopup(true);
+              }}
+            >
+              Support the dev team by buying them chaya! ☕ (Not Bribes 🛑)
             </button>
           </div>
         </div>
