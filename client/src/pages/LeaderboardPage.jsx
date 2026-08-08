@@ -35,13 +35,18 @@ const BATCHES = [
   '2026-2027(one year courses)'
 ];
 
+const MEDALS = {
+  1: '🥇',
+  2: '🥈',
+  3: '🥉',
+};
+
 function LeaderboardPage() {
   const [players, setPlayers] = useState([]);
   const [courseFilter, setCourseFilter] = useState('');
   const [batchFilter, setBatchFilter] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Fetch leaderboard data whenever filters change
   useEffect(() => {
     const fetchLeaderboard = async () => {
       setLoading(true);
@@ -66,21 +71,6 @@ function LeaderboardPage() {
     setCourseFilter('');
     setBatchFilter('');
   };
-
-  const top3 = players.slice(0, 3);
-  const restPlayers = players.slice(3);
-
-  // Helper to get ordered players for podium (Rank 2, Rank 1, Rank 3)
-  const podiumPlayers = [];
-  if (top3[1]) podiumPlayers.push({ ...top3[1], podiumRank: 2 });
-  if (top3[0]) podiumPlayers.push({ ...top3[0], podiumRank: 1 });
-  if (top3[2]) podiumPlayers.push({ ...top3[2], podiumRank: 3 });
-
-  // Sort by podium placement order: 2, 1, 3
-  podiumPlayers.sort((a, b) => {
-    const order = { 2: 1, 1: 2, 3: 3 };
-    return order[a.podiumRank] - order[b.podiumRank];
-  });
 
   return (
     <div className="leaderboard-page">
@@ -135,42 +125,7 @@ function LeaderboardPage() {
           </button>
         )}
 
-        {/* Podium for Top 3 */}
-        {!loading && podiumPlayers.length > 0 && (
-          <div className="podium-container">
-            {podiumPlayers.map((player) => (
-              <div key={player.podiumRank} className={`podium-place rank-${player.podiumRank}`}>
-                <div className="stickman">
-                  <div className="stickman-head">
-                    {player.profile_image_url ? (
-                      <img src={player.profile_image_url} alt={player.name} />
-                    ) : (
-                      <span className="placeholder">?</span>
-                    )}
-                  </div>
-                  <div className="stickman-body">
-                    <div className="stickman-arms"></div>
-                    <div className="stickman-legs">
-                      <div className="stickman-leg left"></div>
-                      <div className="stickman-leg right"></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="podium-block">
-                  <div className="podium-rank-number">{player.podiumRank}</div>
-                  <div className="podium-name">{player.name}</div>
-                  <div className="podium-course">{player.course}</div>
-                  <div className="podium-batch">{player.batch}</div>
-                  <div className="podium-score-val">
-                    {Number(player.score).toLocaleString()}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Table for remaining players */}
+        {/* Table for ALL players */}
         {loading ? (
           <div className="loading" style={{ minHeight: 200 }}>
             Loading...
@@ -188,12 +143,21 @@ function LeaderboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {restPlayers.map((player, idx) => {
-                  const actualRank = idx + 4; // since top 3 are in podium
+                {players.map((player, idx) => {
+                  const rank = idx + 1;
+                  const medal = MEDALS[rank];
+                  const isTop3 = rank <= 3;
                   return (
-                    <tr key={actualRank}>
-                      <td className="rank-cell">{actualRank}</td>
-                      <td>{player.name}</td>
+                    <tr key={rank} className={isTop3 ? `top-rank top-rank-${rank}` : ''}>
+                      <td className="rank-cell">
+                        {medal ? (
+                          <span className="medal-rank">
+                            <span className="medal-emoji">{medal}</span>
+                            <span>{rank}</span>
+                          </span>
+                        ) : rank}
+                      </td>
+                      <td className={isTop3 ? 'top-rank-name' : ''}>{player.name}</td>
                       <td className="course-cell">
                         <div className="course-marquee">
                           <span>{player.course}</span>

@@ -32,6 +32,7 @@ function GamePage() {
   const [currentRank, setCurrentRank] = useState(null);
   const [selectedSfx, setSelectedSfx] = useState('faaah');
   const [milestonePopup, setMilestonePopup] = useState(null);
+  const [supportPopup, setSupportPopup] = useState(false);
 
   // --- Refs ---
   const pendingClicks = useRef(0);
@@ -232,37 +233,33 @@ function GamePage() {
 
   return (
     <div className="game-page">
-      {/* Header: Mute + SFX + Leaderboard */}
-      <div className="game-header" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-        <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
-          <MuteToggle muted={muted} onToggle={() => setMuted((prev) => !prev)} />
-          <Link to="/leaderboard" className="leaderboard-link">
-            🏆 LEADERBOARD
-          </Link>
-        </div>
-        
-        <div style={{ display: 'flex', width: '100%', justifyContent: 'center', marginTop: '15px' }}>
-          <select 
-            value={selectedSfx} 
-            onChange={(e) => setSelectedSfx(e.target.value)}
-            style={{
-              fontFamily: "'Bangers', cursive",
-              fontSize: '1.2rem',
-              padding: '8px 15px',
-              border: '3px solid #111',
-              boxShadow: '4px 4px 0 #111',
-              cursor: 'pointer',
-              width: '100%',
-              maxWidth: '300px',
-              backgroundColor: '#fff'
-            }}
-          >
-            <option value="faaah">faaah.mp3</option>
-            <option value="faaah-2">faaah-2.mp3</option>
-            <option value="mario-jump">mario-jump.mp3</option>
-            <option value="suuuuuuuuuuuuu">suuuuuuuuuuuuu.mp3</option>
-          </select>
-        </div>
+      {/* Header: Mute + SFX + Leaderboard — all in one row */}
+      <div className="game-header" style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+        <MuteToggle muted={muted} onToggle={() => setMuted((prev) => !prev)} />
+        <select 
+          value={selectedSfx} 
+          onChange={(e) => setSelectedSfx(e.target.value)}
+          style={{
+            fontFamily: "'Bangers', cursive",
+            fontSize: '0.9rem',
+            padding: '6px 6px',
+            border: '3px solid #111',
+            boxShadow: '3px 3px 0 #111',
+            cursor: 'pointer',
+            backgroundColor: '#fff',
+            flex: '1',
+            minWidth: '0',
+            maxWidth: '160px'
+          }}
+        >
+          <option value="faaah">faaah.mp3</option>
+          <option value="faaah-2">faaah-2.mp3</option>
+          <option value="mario-jump">mario-jump.mp3</option>
+          <option value="suuuuuuuuuuuuu">suuuuuuuuuuuuu.mp3</option>
+        </select>
+        <Link to="/leaderboard" className="leaderboard-link" style={{ fontSize: '1rem', padding: '6px 12px', whiteSpace: 'nowrap' }}>
+          🏆 BOARD
+        </Link>
       </div>
 
       {/* Main Game Content */}
@@ -298,6 +295,10 @@ function GamePage() {
         }}>
           Top 3 clickers on the final day of the event unlock the MYSTERY PRIZES! 🎁 What are they? Keep mashing to find out!
         </div>
+
+        <button className="support-btn" onClick={() => setSupportPopup(true)}>
+          Support Team Royal Warriors⚔️ with a chaya! ☕
+        </button>
       </div>
 
       {/* +1 Floating VFX */}
@@ -349,6 +350,20 @@ function GamePage() {
               }}
             >
               THANKS ANNA
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Support Popup */}
+      {supportPopup && (
+        <div className="support-overlay">
+          <div className="support-popup">
+            <h2>☕ CHAYA TIME!</h2>
+            <p>Zero pressure. Your clicks are the real support. Keep mashing!</p>
+            <img src="/qr-code.png" alt="QR Code" />
+            <button className="support-close-btn" onClick={() => setSupportPopup(false)}>
+              GOT IT! 🔥
             </button>
           </div>
         </div>
