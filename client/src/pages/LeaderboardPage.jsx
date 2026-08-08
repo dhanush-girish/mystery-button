@@ -159,9 +159,13 @@ function LeaderboardPage() {
                 <div className="podium-block">
                   <div className="podium-rank-number">{player.podiumRank}</div>
                   <div className="podium-name">{player.name}</div>
-                  <div className="podium-score">
-                    {player.course}<br/>
-                    {player.batch}<br/>
+                  <div className="podium-course" style={{ fontSize: '0.9rem', color: '#555', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {player.course}
+                  </div>
+                  <div className="podium-batch" style={{ fontSize: '0.8rem', color: '#777', marginTop: '2px' }}>
+                    {player.batch}
+                  </div>
+                  <div className="podium-score-val" style={{ fontSize: '1.4rem', color: '#ff1493', marginTop: '5px' }}>
                     {Number(player.score).toLocaleString()}
                   </div>
                 </div>

@@ -253,7 +253,7 @@ function GamePage() {
 
         <div className="score-display">
           {currentRank && (
-            <span style={{ fontSize: '1.2rem', color: '#555', marginBottom: '-5px' }}>
+            <span style={{ fontSize: '1.2rem', color: '#555', marginBottom: '10px' }}>
               RANK: #{currentRank}
             </span>
           )}

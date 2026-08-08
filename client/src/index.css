@@ -954,11 +954,11 @@ a {
 .stickman {
   position: relative;
   width: 60px;
-  height: 100px;
+  height: 135px; /* head (60) + body (40) + legs (35) */
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: -5px; /* connect to podium */
+  margin-bottom: 0; 
 }
 
 .stickman-head {
@@ -997,7 +997,9 @@ a {
 
 .stickman-arms {
   position: absolute;
-  top: 75px; /* below head */
+  top: 10px; /* 10px down from neck */
+  left: 50%;
+  margin-left: -30px; /* half of 60px width */
   width: 60px;
   height: 6px;
   background-color: #111;
@@ -1010,9 +1012,11 @@ a {
 
 .stickman-legs {
   position: absolute;
-  bottom: 0;
+  top: 40px; /* bottom of body */
+  left: 50%;
+  margin-left: -25px; /* half of 50px width */
   width: 50px;
-  height: 30px;
+  height: 35px;
   z-index: 1;
 }
 
