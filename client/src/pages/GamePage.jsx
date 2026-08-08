@@ -361,7 +361,7 @@ function GamePage() {
           <div className="support-popup">
             <h2>☕ CHAYA TIME!</h2>
             <p>Zero pressure. Your clicks are the real support. Keep mashing!</p>
-            <img src="/qr-code.png" alt="QR Code" />
+            <img src="/qrroyalwarriors.jpeg" alt="QR Code" />
             <button className="support-close-btn" onClick={() => setSupportPopup(false)}>
               GOT IT! 🔥
             </button>
