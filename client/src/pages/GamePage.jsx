@@ -64,7 +64,7 @@ function GamePage() {
 
         // Backfill profile image for existing players
         if (!data.player.profile_image_url && user?.imageUrl) {
-          fetch('/api/player/avatar', {
+          fetch('/api/player', {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
