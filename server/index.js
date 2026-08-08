@@ -54,6 +54,26 @@ app.post('/api/player', requireAuth(), async (req, res) => {
   }
 });
 
+// PATCH /api/player/avatar — backfill profile image for existing players
+app.patch('/api/player/avatar', requireAuth(), async (req, res) => {
+  try {
+    const { userId } = req.auth;
+    const { profile_image_url } = req.body;
+
+    if (profile_image_url) {
+      await sql`
+        UPDATE players SET profile_image_url = ${profile_image_url}
+        WHERE clerk_id = ${userId} AND profile_image_url IS NULL
+      `;
+    }
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('PATCH /api/player/avatar error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // POST /api/score — batch update score (debounced from client)
 app.post('/api/score', requireAuth(), async (req, res) => {
   try {
