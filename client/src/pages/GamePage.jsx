@@ -233,19 +233,28 @@ function GamePage() {
   return (
     <div className="game-page">
       {/* Header: Mute + SFX + Leaderboard */}
-      <div className="game-header">
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+      <div className="game-header" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+        <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
           <MuteToggle muted={muted} onToggle={() => setMuted((prev) => !prev)} />
+          <Link to="/leaderboard" className="leaderboard-link">
+            🏆 LEADERBOARD
+          </Link>
+        </div>
+        
+        <div style={{ display: 'flex', width: '100%', justifyContent: 'center', marginTop: '15px' }}>
           <select 
             value={selectedSfx} 
             onChange={(e) => setSelectedSfx(e.target.value)}
             style={{
               fontFamily: "'Bangers', cursive",
               fontSize: '1.2rem',
-              padding: '4px 8px',
+              padding: '8px 15px',
               border: '3px solid #111',
-              boxShadow: '3px 3px 0 #111',
-              cursor: 'pointer'
+              boxShadow: '4px 4px 0 #111',
+              cursor: 'pointer',
+              width: '100%',
+              maxWidth: '300px',
+              backgroundColor: '#fff'
             }}
           >
             <option value="faaah">faaah.mp3</option>
@@ -254,9 +263,6 @@ function GamePage() {
             <option value="suuuuuuuuuuuuu">suuuuuuuuuuuuu.mp3</option>
           </select>
         </div>
-        <Link to="/leaderboard" className="leaderboard-link">
-          🏆 LEADERBOARD
-        </Link>
       </div>
 
       {/* Main Game Content */}
