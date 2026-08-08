@@ -366,7 +366,6 @@ function GamePage() {
               src="/bribe.mp4" 
               autoPlay 
               loop 
-              muted 
               playsInline 
               controls
               style={{ width: '100%', maxWidth: '300px', border: '4px solid #111', marginBottom: '20px' }} 
