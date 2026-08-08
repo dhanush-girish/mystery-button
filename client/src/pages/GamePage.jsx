@@ -32,7 +32,8 @@ function GamePage() {
   const [currentRank, setCurrentRank] = useState(null);
   const [selectedSfx, setSelectedSfx] = useState('faaah');
   const [milestonePopup, setMilestonePopup] = useState(null);
-  const [supportPopup, setSupportPopup] = useState(false);
+  const [bribePopup, setBribePopup] = useState(false);
+  const [chayaPopup, setChayaPopup] = useState(false);
 
   // --- Refs ---
   const pendingClicks = useRef(0);
@@ -296,8 +297,12 @@ function GamePage() {
           Top 3 clickers on the final day of the event unlock the MYSTERY PRIZES! 🎁 What are they? Keep mashing to find out!
         </div>
 
-        <button className="support-btn" onClick={() => setSupportPopup(true)}>
-          Support Team Royal Warriors⚔️ with a chaya! ☕
+        <button className="support-btn" style={{ marginBottom: '10px' }} onClick={() => setBribePopup(true)}>
+          🤫 Bribe Dev for +1000 Points
+        </button>
+
+        <button className="support-btn" style={{ fontSize: '0.9rem' }} onClick={() => setChayaPopup(true)}>
+          Support the dev team by buying them chaya! ☕ (Not Bribes 🛑)
         </button>
       </div>
 
@@ -355,14 +360,34 @@ function GamePage() {
         </div>
       )}
 
-      {/* Support Popup */}
-      {supportPopup && (
+      {/* Bribe Popup */}
+      {bribePopup && (
+        <div className="support-overlay">
+          <div className="support-popup">
+            <h2>POOJAPPURA CENTRAL JAIL IS WAITING! 🚨</h2>
+            <video 
+              src="/bribe.mp4" 
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+              style={{ width: '100%', maxWidth: '300px', border: '4px solid #111', marginBottom: '20px' }} 
+            />
+            <button className="support-close-btn" onClick={() => setBribePopup(false)}>
+              I REPENT! 🙏
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Chaya Popup */}
+      {chayaPopup && (
         <div className="support-overlay">
           <div className="support-popup">
             <h2>☕ CHAYA TIME!</h2>
-            <p>Zero pressure. Your clicks are the real support. Keep mashing!</p>
+            <p>No pressure guys. Your clicks are the real support!</p>
             <img src="/qrroyalwarriors.jpeg" alt="QR Code" />
-            <button className="support-close-btn" onClick={() => setSupportPopup(false)}>
+            <button className="support-close-btn" onClick={() => setChayaPopup(false)}>
               GOT IT! 🔥
             </button>
           </div>
