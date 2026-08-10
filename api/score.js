@@ -3,7 +3,7 @@ import { verifyAuth } from './_auth.js';
 
 // Anti-cheat constants (must match server/index.js)
 const MAX_CPS = 15;
-const HARD_CAP_PER_BATCH = 200;
+const HARD_CAP_PER_BATCH = 45;
 const MIN_BATCH_GAP_MS = 2000;
 
 export default async function handler(req, res) {

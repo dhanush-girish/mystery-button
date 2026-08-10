@@ -84,7 +84,7 @@ app.post('/api/player', requireAuth(), async (req, res) => {
 //   5. Reject batches arriving faster than every 2 seconds
 //
 const MAX_CPS = 15;
-const HARD_CAP_PER_BATCH = 200;
+const HARD_CAP_PER_BATCH = 45;
 const MIN_BATCH_GAP_MS = 2000;
 
 app.post('/api/score', requireAuth(), async (req, res) => {
