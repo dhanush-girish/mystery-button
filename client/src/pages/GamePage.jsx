@@ -9,6 +9,7 @@ import RankToast from '../components/RankToast';
 const RANK_THRESHOLDS = [50, 25, 10];
 const BATCH_INTERVAL_MS = 3000; // Sync score every 3s
 const RANK_INTERVAL_MS = 10000; // Check rank every 10s
+const MIN_CLICK_INTERVAL_MS = 67; // ~15 CPS max — anti-cheat throttle
 
 const MILESTONES = {
   1000: { image: '1000.jpeg', caption: 'Choodu chaya for the choodu fingers. Keep clicking👍' },
@@ -38,6 +39,7 @@ function GamePage() {
   const pendingClicks = useRef(0);
   const particleId = useRef(0);
   const lastThreshold = useRef(Infinity);
+  const lastClickTime = useRef(0); // Anti-cheat: tracks last accepted click timestamp
   const mutedRef = useRef(false);
 
   // Keep muted ref in sync with state
@@ -182,6 +184,13 @@ function GamePage() {
 
   // --- Handle button press ---
   const handlePress = useCallback((x, y) => {
+    // Anti-cheat: reject clicks faster than 15 CPS (67ms interval)
+    const now = Date.now();
+    if (now - lastClickTime.current < MIN_CLICK_INTERVAL_MS) {
+      return; // Silently drop — too fast to be human
+    }
+    lastClickTime.current = now;
+
     // 1. Instantly update UI score
     setScore((prev) => {
       const newScore = prev + 1;

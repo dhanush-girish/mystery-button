@@ -5,7 +5,9 @@ CREATE TABLE IF NOT EXISTS players (
     name TEXT NOT NULL,
     course TEXT NOT NULL,
     batch TEXT NOT NULL,
-    score INTEGER DEFAULT 0
+    score INTEGER DEFAULT 0,
+    last_click_sync TIMESTAMPTZ DEFAULT NOW(),
+    last_click_count INTEGER DEFAULT 0
 );
 
 -- Indexes for fast leaderboard queries
