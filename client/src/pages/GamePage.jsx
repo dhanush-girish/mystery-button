@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useAuth, useUser } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/clerk-react';
 import { useNavigate, Link } from 'react-router-dom';
 import BigRedButton from '../components/BigRedButton';
 import PlusOneVFX from '../components/PlusOneVFX';
@@ -19,7 +19,6 @@ const MILESTONES = {
 
 function GamePage() {
   const { getToken } = useAuth();
-  const { user } = useUser();
   const navigate = useNavigate();
 
   // --- State ---
@@ -64,17 +63,7 @@ function GamePage() {
         setScore(data.player.score);
         setPlayerName(data.player.name);
 
-        // Backfill profile image for existing players
-        if (!data.player.profile_image_url && user?.imageUrl) {
-          fetch('/api/player', {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ profile_image_url: user.imageUrl }),
-          }).catch(() => {}); // fire-and-forget
-        }
+
       } catch (err) {
         console.error('Failed to fetch player:', err);
       } finally {
@@ -82,7 +71,7 @@ function GamePage() {
       }
     };
     fetchPlayer();
-  }, [getToken, navigate, user]);
+  }, [getToken, navigate]);
 
   // --- Debounced batch score sync (every 3s) ---
   useEffect(() => {

@@ -29,38 +29,22 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
-      const { name, course, batch, profile_image_url } = req.body;
+      const { name, course, batch } = req.body;
 
       if (!name || !course || !batch) {
         return res.status(400).json({ error: 'Name, course, and batch are required' });
       }
 
       await sql`
-        INSERT INTO players (clerk_id, name, course, batch, score, profile_image_url)
-        VALUES (${userId}, ${name}, ${course}, ${batch}, 0, ${profile_image_url || null})
+        INSERT INTO players (clerk_id, name, course, batch, score)
+        VALUES (${userId}, ${name}, ${course}, ${batch}, 0)
         ON CONFLICT (clerk_id)
-        DO UPDATE SET name = ${name}, course = ${course}, batch = ${batch}, profile_image_url = COALESCE(${profile_image_url || null}, players.profile_image_url)
+        DO UPDATE SET name = ${name}, course = ${course}, batch = ${batch}
       `;
 
       return res.json({ success: true });
     } catch (err) {
       console.error('POST /api/player error:', err);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-  }
-
-  if (req.method === 'PATCH') {
-    try {
-      const { profile_image_url } = req.body;
-      if (profile_image_url) {
-        await sql`
-          UPDATE players SET profile_image_url = ${profile_image_url}
-          WHERE clerk_id = ${userId} AND profile_image_url IS NULL
-        `;
-      }
-      return res.json({ success: true });
-    } catch (err) {
-      console.error('PATCH /api/player error:', err);
       return res.status(500).json({ error: 'Internal server error' });
     }
   }
