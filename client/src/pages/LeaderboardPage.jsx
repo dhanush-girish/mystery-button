@@ -44,7 +44,7 @@ const MEDALS = {
 };
 
 function LeaderboardPage() {
-  const { getToken, isSignedIn } = useAuth();
+  const { getToken, isSignedIn, isLoaded } = useAuth();
   const [players, setPlayers] = useState([]);
   const [courseFilter, setCourseFilter] = useState('');
   const [batchFilter, setBatchFilter] = useState('');
@@ -52,6 +52,8 @@ function LeaderboardPage() {
   const [eventEnded, setEventEnded] = useState(false);
 
   useEffect(() => {
+    if (!isLoaded) return; // wait until auth state is known
+
     const fetchLeaderboard = async () => {
       setLoading(true);
       try {
@@ -80,7 +82,7 @@ function LeaderboardPage() {
       }
     };
     fetchLeaderboard();
-  }, [courseFilter, batchFilter, isSignedIn, getToken]);
+  }, [courseFilter, batchFilter, isLoaded, isSignedIn, getToken]);
 
   const clearFilters = () => {
     setCourseFilter('');
