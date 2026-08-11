@@ -5,6 +5,8 @@ import BigRedButton from '../components/BigRedButton';
 import PlusOneVFX from '../components/PlusOneVFX';
 import MuteToggle from '../components/MuteToggle';
 import RankToast from '../components/RankToast';
+import EventTimer from '../components/EventTimer';
+import CaptchaChallenge from '../components/CaptchaChallenge';
 
 const RANK_THRESHOLDS = [50, 25, 10];
 const BATCH_INTERVAL_MS = 3000; // Sync score every 3s
@@ -34,6 +36,8 @@ function GamePage() {
   const [milestonePopup, setMilestonePopup] = useState(null);
   const [bribePopup, setBribePopup] = useState(false);
   const [chayaPopup, setChayaPopup] = useState(false);
+  const [eventEnded, setEventEnded] = useState(false);
+  const [captchaData, setCaptchaData] = useState(null);
 
   // --- Refs ---
   const pendingClicks = useRef(0);
@@ -41,6 +45,7 @@ function GamePage() {
   const lastThreshold = useRef(Infinity);
   const lastClickTime = useRef(0); // Anti-cheat: tracks last accepted click timestamp
   const mutedRef = useRef(false);
+  const clickTimestamps = useRef([]); // Anti-cheat: per-click Date.now() for variance check
 
   // Keep muted ref in sync with state
   useEffect(() => {
@@ -57,6 +62,10 @@ function GamePage() {
         });
         const data = await res.json();
 
+        if (data.event_ended) {
+          setEventEnded(true);
+        }
+
         if (!data.exists) {
           navigate('/setup', { replace: true });
           return;
@@ -64,7 +73,6 @@ function GamePage() {
 
         setScore(data.player.score);
         setPlayerName(data.player.name);
-
 
       } catch (err) {
         console.error('Failed to fetch player:', err);
@@ -78,9 +86,11 @@ function GamePage() {
   // --- Debounced batch score sync (every 3s) ---
   useEffect(() => {
     const interval = setInterval(async () => {
-      if (pendingClicks.current > 0) {
+      if (pendingClicks.current > 0 && !eventEnded) {
         const clicks = pendingClicks.current;
+        const timestamps = [...clickTimestamps.current]; // Copy for this batch
         pendingClicks.current = 0;
+        clickTimestamps.current = [];
 
         try {
           const token = await getToken();
@@ -90,11 +100,24 @@ function GamePage() {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ clicks }),
+            body: JSON.stringify({ clicks, timestamps }),
           });
 
-          if (!res.ok) {
-            // Re-add clicks if the request failed
+          if (res.status === 403) {
+            // Event ended server-side
+            setEventEnded(true);
+            return;
+          }
+
+          if (res.ok) {
+            const data = await res.json();
+
+            // Handle CAPTCHA challenge from server
+            if (data.captcha_required && data.captcha) {
+              setCaptchaData(data.captcha);
+            }
+          } else {
+            // Re-add clicks if the request failed (don't re-add timestamps)
             pendingClicks.current += clicks;
           }
         } catch (err) {
@@ -106,11 +129,12 @@ function GamePage() {
     }, BATCH_INTERVAL_MS);
 
     return () => clearInterval(interval);
-  }, [getToken]);
+  }, [getToken, eventEnded]);
 
   // --- Periodic rank check (every 10s) ---
   useEffect(() => {
     const interval = setInterval(async () => {
+      if (eventEnded) return;
       try {
         const token = await getToken();
         const res = await fetch('/api/rank', {
@@ -148,14 +172,16 @@ function GamePage() {
     }, RANK_INTERVAL_MS);
 
     return () => clearInterval(interval);
-  }, [getToken]);
+  }, [getToken, eventEnded]);
 
   // --- Flush pending clicks on page unload / component unmount ---
   useEffect(() => {
     const flush = async () => {
       if (pendingClicks.current > 0) {
         const clicks = pendingClicks.current;
+        const timestamps = [...clickTimestamps.current];
         pendingClicks.current = 0;
+        clickTimestamps.current = [];
 
         try {
           const token = await getToken();
@@ -166,7 +192,7 @@ function GamePage() {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ clicks }),
+            body: JSON.stringify({ clicks, timestamps }),
             keepalive: true,
           });
         } catch (e) {
@@ -184,12 +210,18 @@ function GamePage() {
 
   // --- Handle button press ---
   const handlePress = useCallback((x, y) => {
+    // Don't accept clicks when CAPTCHA is active or event ended
+    if (captchaData || eventEnded) return;
+
     // Anti-cheat: reject clicks faster than 15 CPS (67ms interval)
     const now = Date.now();
     if (now - lastClickTime.current < MIN_CLICK_INTERVAL_MS) {
       return; // Silently drop — too fast to be human
     }
     lastClickTime.current = now;
+
+    // Record timestamp for variance analysis
+    clickTimestamps.current.push(now);
 
     // 1. Instantly update UI score
     setScore((prev) => {
@@ -223,7 +255,17 @@ function GamePage() {
         // Audio not available
       }
     }
-  }, [selectedSfx]);
+  }, [selectedSfx, captchaData, eventEnded]);
+
+  // --- CAPTCHA dismiss handler ---
+  const handleCaptchaDismiss = useCallback(() => {
+    setCaptchaData(null);
+  }, []);
+
+  // --- Event end handler ---
+  const handleEventEnd = useCallback(() => {
+    setEventEnded(true);
+  }, []);
 
   // --- Render ---
   if (loading) {
@@ -232,6 +274,9 @@ function GamePage() {
 
   return (
     <div className="game-page">
+      {/* Event Countdown Timer */}
+      <EventTimer onEventEnd={handleEventEnd} />
+
       {/* Header: Mute + SFX + Leaderboard — all in one row */}
       <div className="game-header" style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
         <MuteToggle muted={muted} onToggle={() => setMuted((prev) => !prev)} />
@@ -276,7 +321,7 @@ function GamePage() {
           <span className="score-value">{score.toLocaleString()}</span>
         </div>
 
-        <BigRedButton onPress={handlePress} />
+        <BigRedButton onPress={handlePress} disabled={!!captchaData || eventEnded} />
 
         <div className="mystery-prize-text" style={{ 
           marginTop: '20px', 
@@ -306,6 +351,11 @@ function GamePage() {
 
       {/* Rank Achievement Toast */}
       {toast && <RankToast message={toast} />}
+
+      {/* CAPTCHA Challenge Overlay */}
+      {captchaData && (
+        <CaptchaChallenge captchaData={captchaData} onDismiss={handleCaptchaDismiss} />
+      )}
 
       {/* Milestone Popup */}
       {milestonePopup && MILESTONES[milestonePopup] && (

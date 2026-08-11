@@ -7,7 +7,21 @@ CREATE TABLE IF NOT EXISTS players (
     batch TEXT NOT NULL,
     score INTEGER DEFAULT 0,
     last_click_sync TIMESTAMPTZ DEFAULT NOW(),
-    last_click_count INTEGER DEFAULT 0
+    last_click_count INTEGER DEFAULT 0,
+
+    -- Anti-cheat v2: Shadowban
+    is_shadowbanned BOOLEAN DEFAULT FALSE,
+    shadow_score INTEGER DEFAULT 0,
+
+    -- Anti-cheat v2: Rolling rate cap (DB-backed for serverless)
+    click_windows JSONB DEFAULT '[]',
+    rate_violations INTEGER DEFAULT 0,
+
+    -- Anti-cheat v2: CAPTCHA state
+    pending_captcha_id TEXT DEFAULT NULL,
+    pending_captcha_target TEXT DEFAULT NULL,
+    captcha_issued_at TIMESTAMPTZ DEFAULT NULL,
+    captcha_failures INTEGER DEFAULT 0
 );
 
 -- Indexes for fast leaderboard queries

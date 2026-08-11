@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@clerk/clerk-react';
 import SearchDropdown from '../components/SearchDropdown';
+import EventTimer from '../components/EventTimer';
 
 const COURSES = [
   'MSc in Computer Science (Artificial Intelligence)',
@@ -42,10 +44,12 @@ const MEDALS = {
 };
 
 function LeaderboardPage() {
+  const { getToken, isSignedIn } = useAuth();
   const [players, setPlayers] = useState([]);
   const [courseFilter, setCourseFilter] = useState('');
   const [batchFilter, setBatchFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const [eventEnded, setEventEnded] = useState(false);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -55,7 +59,18 @@ function LeaderboardPage() {
         if (courseFilter) params.set('course', courseFilter);
         if (batchFilter) params.set('batch', batchFilter);
 
-        const res = await fetch(`/api/leaderboard?${params.toString()}`);
+        // Send auth token if signed in (enables leaderboard ghosting)
+        const headers = {};
+        if (isSignedIn) {
+          try {
+            const token = await getToken();
+            if (token) headers.Authorization = `Bearer ${token}`;
+          } catch {
+            // Continue without auth
+          }
+        }
+
+        const res = await fetch(`/api/leaderboard?${params.toString()}`, { headers });
         const data = await res.json();
         setPlayers(data);
       } catch (err) {
@@ -65,22 +80,31 @@ function LeaderboardPage() {
       }
     };
     fetchLeaderboard();
-  }, [courseFilter, batchFilter]);
+  }, [courseFilter, batchFilter, isSignedIn, getToken]);
 
   const clearFilters = () => {
     setCourseFilter('');
     setBatchFilter('');
   };
 
+  const handleEventEnd = useCallback(() => {
+    setEventEnded(true);
+  }, []);
+
   return (
     <div className="leaderboard-page">
       <div className="leaderboard-card">
+        {/* Event Timer */}
+        <EventTimer onEventEnd={handleEventEnd} />
+
         {/* Header */}
         <div className="leaderboard-header">
           <Link to="/game" className="back-link">
             ← BACK TO GAME
           </Link>
-          <h1 className="leaderboard-title">🏆 LEADERBOARD</h1>
+          <h1 className="leaderboard-title">
+            🏆 {eventEnded ? 'FINAL ' : ''}LEADERBOARD
+          </h1>
         </div>
 
         {/* Filters */}
