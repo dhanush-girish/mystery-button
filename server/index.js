@@ -221,35 +221,8 @@ app.post('/api/verify-captcha', requireAuth(), async (req, res) => {
 app.get('/api/leaderboard', async (req, res) => {
   try {
     const { course, batch } = req.query;
-    let rows;
 
-    if (course && batch) {
-      rows = await sql`
-        SELECT name, course, batch, score FROM players
-        WHERE course = ${course} AND batch = ${batch} AND (is_shadowbanned IS NOT TRUE)
-        ORDER BY score DESC LIMIT 100
-      `;
-    } else if (course) {
-      rows = await sql`
-        SELECT name, course, batch, score FROM players
-        WHERE course = ${course} AND (is_shadowbanned IS NOT TRUE)
-        ORDER BY score DESC LIMIT 100
-      `;
-    } else if (batch) {
-      rows = await sql`
-        SELECT name, course, batch, score FROM players
-        WHERE batch = ${batch} AND (is_shadowbanned IS NOT TRUE)
-        ORDER BY score DESC LIMIT 100
-      `;
-    } else {
-      rows = await sql`
-        SELECT name, course, batch, score FROM players
-        WHERE (is_shadowbanned IS NOT TRUE)
-        ORDER BY score DESC LIMIT 100
-      `;
-    }
-
-    // Leaderboard ghosting — optional auth via header
+    let isRequestingUserCheater = false;
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
@@ -261,23 +234,70 @@ app.get('/api/leaderboard', async (req, res) => {
         const requestingUserId = payload.sub;
 
         const playerRows = await sql`
-          SELECT name, course, batch, score, shadow_score, is_shadowbanned
-          FROM players WHERE clerk_id = ${requestingUserId}
+          SELECT is_shadowbanned FROM players WHERE clerk_id = ${requestingUserId}
         `;
         if (playerRows.length > 0 && playerRows[0].is_shadowbanned) {
-          const p = playerRows[0];
-          const ghostScore = Number(p.score) + Number(p.shadow_score || 0);
-          let insertIdx = rows.length;
-          for (let i = 0; i < rows.length; i++) {
-            if (ghostScore >= Number(rows[i].score)) { insertIdx = i; break; }
-          }
-          rows = [...rows];
-          rows.splice(insertIdx, 0, {
-            name: p.name, course: p.course, batch: p.batch, score: ghostScore,
-          });
+          isRequestingUserCheater = true;
         }
       } catch {
-        // Auth failed — continue without ghosting
+        // Auth failed — continue as normal user
+      }
+    }
+
+    let rows;
+
+    if (isRequestingUserCheater) {
+      // Cheater sees everyone (genuine + cheaters) with their effective scores
+      if (course && batch) {
+        rows = await sql`
+          SELECT name, course, batch, (score + COALESCE(shadow_score, 0)) as score FROM players
+          WHERE course = ${course} AND batch = ${batch}
+          ORDER BY (score + COALESCE(shadow_score, 0)) DESC LIMIT 100
+        `;
+      } else if (course) {
+        rows = await sql`
+          SELECT name, course, batch, (score + COALESCE(shadow_score, 0)) as score FROM players
+          WHERE course = ${course}
+          ORDER BY (score + COALESCE(shadow_score, 0)) DESC LIMIT 100
+        `;
+      } else if (batch) {
+        rows = await sql`
+          SELECT name, course, batch, (score + COALESCE(shadow_score, 0)) as score FROM players
+          WHERE batch = ${batch}
+          ORDER BY (score + COALESCE(shadow_score, 0)) DESC LIMIT 100
+        `;
+      } else {
+        rows = await sql`
+          SELECT name, course, batch, (score + COALESCE(shadow_score, 0)) as score FROM players
+          ORDER BY (score + COALESCE(shadow_score, 0)) DESC LIMIT 100
+        `;
+      }
+    } else {
+      // Genuine user sees only genuine players
+      if (course && batch) {
+        rows = await sql`
+          SELECT name, course, batch, score FROM players
+          WHERE course = ${course} AND batch = ${batch} AND (is_shadowbanned IS NOT TRUE)
+          ORDER BY score DESC LIMIT 100
+        `;
+      } else if (course) {
+        rows = await sql`
+          SELECT name, course, batch, score FROM players
+          WHERE course = ${course} AND (is_shadowbanned IS NOT TRUE)
+          ORDER BY score DESC LIMIT 100
+        `;
+      } else if (batch) {
+        rows = await sql`
+          SELECT name, course, batch, score FROM players
+          WHERE batch = ${batch} AND (is_shadowbanned IS NOT TRUE)
+          ORDER BY score DESC LIMIT 100
+        `;
+      } else {
+        rows = await sql`
+          SELECT name, course, batch, score FROM players
+          WHERE (is_shadowbanned IS NOT TRUE)
+          ORDER BY score DESC LIMIT 100
+        `;
       }
     }
 
@@ -306,10 +326,18 @@ app.get('/api/rank', requireAuth(), async (req, res) => {
     const isBanned = player.is_shadowbanned === true;
     const effectiveScore = isBanned ? Number(player.score) + Number(player.shadow_score || 0) : Number(player.score);
 
-    const rankRows = await sql`
-      SELECT COUNT(*) AS above FROM players
-      WHERE score > ${effectiveScore} AND (is_shadowbanned IS NOT TRUE)
-    `;
+    let rankRows;
+    if (isBanned) {
+      rankRows = await sql`
+        SELECT COUNT(*) AS above FROM players
+        WHERE (score + COALESCE(shadow_score, 0)) > ${effectiveScore}
+      `;
+    } else {
+      rankRows = await sql`
+        SELECT COUNT(*) AS above FROM players
+        WHERE score > ${effectiveScore} AND (is_shadowbanned IS NOT TRUE)
+      `;
+    }
 
     return res.json({
       rank: Number(rankRows[0].above) + 1,
