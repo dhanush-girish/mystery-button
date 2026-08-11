@@ -43,79 +43,73 @@ export default async function handler(req, res) {
 
   try {
     const { course, batch } = req.query;
-    let rows;
 
-    // ── Real leaderboard (excludes shadowbanned) ──
-    if (course && batch) {
-      rows = await sql`
-        SELECT name, course, batch, score
-        FROM players
-        WHERE course = ${course} AND batch = ${batch}
-          AND (is_shadowbanned IS NOT TRUE)
-        ORDER BY score DESC
-        LIMIT 100
-      `;
-    } else if (course) {
-      rows = await sql`
-        SELECT name, course, batch, score
-        FROM players
-        WHERE course = ${course}
-          AND (is_shadowbanned IS NOT TRUE)
-        ORDER BY score DESC
-        LIMIT 100
-      `;
-    } else if (batch) {
-      rows = await sql`
-        SELECT name, course, batch, score
-        FROM players
-        WHERE batch = ${batch}
-          AND (is_shadowbanned IS NOT TRUE)
-        ORDER BY score DESC
-        LIMIT 100
-      `;
-    } else {
-      rows = await sql`
-        SELECT name, course, batch, score
-        FROM players
-        WHERE (is_shadowbanned IS NOT TRUE)
-        ORDER BY score DESC
-        LIMIT 100
-      `;
-    }
-
-    // ── Leaderboard ghosting (stretch goal) ──
-    // If the requesting user is shadowbanned, splice their row
-    // into the results at the rank their shadow_score would occupy.
     const userId = await optionalAuth(req);
+    let isRequestingUserCheater = false;
+
     if (userId) {
       const playerRows = await sql`
-        SELECT name, course, batch, score, shadow_score, is_shadowbanned
-        FROM players
-        WHERE clerk_id = ${userId}
+        SELECT is_shadowbanned FROM players WHERE clerk_id = ${userId}
       `;
-
       if (playerRows.length > 0 && playerRows[0].is_shadowbanned) {
-        const p = playerRows[0];
-        const ghostScore = Number(p.score) + Number(p.shadow_score || 0);
+        isRequestingUserCheater = true;
+      }
+    }
 
-        // Find insertion index (descending order)
-        let insertIdx = rows.length; // default: end
-        for (let i = 0; i < rows.length; i++) {
-          if (ghostScore >= Number(rows[i].score)) {
-            insertIdx = i;
-            break;
-          }
-        }
+    let rows;
 
-        // Splice ghost row in (using shadow_score as displayed score)
-        const ghostRow = {
-          name: p.name,
-          course: p.course,
-          batch: p.batch,
-          score: ghostScore,
-        };
-        rows = [...rows]; // shallow copy (rows may be frozen)
-        rows.splice(insertIdx, 0, ghostRow);
+    if (isRequestingUserCheater) {
+      // Cheater sees everyone (genuine + cheaters) with their effective scores
+      if (course && batch) {
+        rows = await sql`
+          SELECT name, course, batch, (score + COALESCE(shadow_score, 0)) as score FROM players
+          WHERE course = ${course} AND batch = ${batch}
+          ORDER BY (score + COALESCE(shadow_score, 0)) DESC LIMIT 100
+        `;
+      } else if (course) {
+        rows = await sql`
+          SELECT name, course, batch, (score + COALESCE(shadow_score, 0)) as score FROM players
+          WHERE course = ${course}
+          ORDER BY (score + COALESCE(shadow_score, 0)) DESC LIMIT 100
+        `;
+      } else if (batch) {
+        rows = await sql`
+          SELECT name, course, batch, (score + COALESCE(shadow_score, 0)) as score FROM players
+          WHERE batch = ${batch}
+          ORDER BY (score + COALESCE(shadow_score, 0)) DESC LIMIT 100
+        `;
+      } else {
+        rows = await sql`
+          SELECT name, course, batch, (score + COALESCE(shadow_score, 0)) as score FROM players
+          ORDER BY (score + COALESCE(shadow_score, 0)) DESC LIMIT 100
+        `;
+      }
+    } else {
+      // Genuine user sees only genuine players
+      if (course && batch) {
+        rows = await sql`
+          SELECT name, course, batch, score FROM players
+          WHERE course = ${course} AND batch = ${batch} AND (is_shadowbanned IS NOT TRUE)
+          ORDER BY score DESC LIMIT 100
+        `;
+      } else if (course) {
+        rows = await sql`
+          SELECT name, course, batch, score FROM players
+          WHERE course = ${course} AND (is_shadowbanned IS NOT TRUE)
+          ORDER BY score DESC LIMIT 100
+        `;
+      } else if (batch) {
+        rows = await sql`
+          SELECT name, course, batch, score FROM players
+          WHERE batch = ${batch} AND (is_shadowbanned IS NOT TRUE)
+          ORDER BY score DESC LIMIT 100
+        `;
+      } else {
+        rows = await sql`
+          SELECT name, course, batch, score FROM players
+          WHERE (is_shadowbanned IS NOT TRUE)
+          ORDER BY score DESC LIMIT 100
+        `;
       }
     }
 

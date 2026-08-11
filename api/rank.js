@@ -44,13 +44,21 @@ export default async function handler(req, res) {
       ? Number(player.score) + Number(player.shadow_score || 0)
       : Number(player.score);
 
-    // Count how many non-banned players have a higher score
-    const rankRows = await sql`
-      SELECT COUNT(*) AS above
-      FROM players
-      WHERE score > ${effectiveScore}
-        AND (is_shadowbanned IS NOT TRUE)
-    `;
+    let rankRows;
+    if (isBanned) {
+      rankRows = await sql`
+        SELECT COUNT(*) AS above
+        FROM players
+        WHERE (score + COALESCE(shadow_score, 0)) > ${effectiveScore}
+      `;
+    } else {
+      rankRows = await sql`
+        SELECT COUNT(*) AS above
+        FROM players
+        WHERE score > ${effectiveScore}
+          AND (is_shadowbanned IS NOT TRUE)
+      `;
+    }
 
     const rank = Number(rankRows[0].above) + 1;
 
