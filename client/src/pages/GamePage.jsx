@@ -323,26 +323,70 @@ function GamePage() {
 
         <BigRedButton onPress={handlePress} disabled={!!captchaData || eventEnded} />
 
-        <div className="mystery-prize-text" style={{ 
-          marginTop: '20px', 
-          padding: '10px', 
-          backgroundColor: '#fff', 
-          border: '4px solid #000', 
-          boxShadow: '4px 4px 0 #000', 
-          textAlign: 'center', 
-          maxWidth: '400px', 
-          margin: '20px auto', 
-          fontFamily: "'Bangers', cursive",
-          letterSpacing: '1px', 
-          fontWeight: 'normal',
-          transform: 'rotate(-2deg)'
-        }}>
-          Top 3 clickers on the final day of the event unlock the MYSTERY PRIZES! 🎁 What are they? Keep mashing to find out!
-        </div>
+        {eventEnded ? (
+          <div style={{ 
+            marginTop: '20px', 
+            padding: '20px', 
+            backgroundColor: '#fff', 
+            border: '5px solid #111', 
+            boxShadow: '6px 6px 0 #111', 
+            textAlign: 'center', 
+            maxWidth: '400px', 
+            margin: '20px auto', 
+            fontFamily: "'Bangers', cursive",
+            letterSpacing: '1px', 
+            transform: 'rotate(-1deg)'
+          }}>
+            <h2 style={{ fontSize: '2rem', color: '#ff1493', textShadow: '2px 2px 0 #111', margin: '0 0 10px 0' }}>
+              🏁 THE EVENT HAS ENDED!
+            </h2>
+            <p style={{ fontSize: '1.3rem', color: '#333', marginBottom: '15px' }}>
+              Thanks for clicking, {playerName}! 🎉
+            </p>
+            <p style={{ fontSize: '1.1rem', color: '#555', marginBottom: '15px' }}>
+              Your final score: <strong style={{ color: '#ff1493' }}>{score.toLocaleString()}</strong>
+            </p>
+            <Link to="/leaderboard" style={{
+              display: 'inline-block',
+              fontFamily: "'Bangers', cursive",
+              fontSize: '1.5rem',
+              padding: '12px 25px',
+              backgroundColor: '#00cfff',
+              color: '#fff',
+              border: '4px solid #111',
+              boxShadow: '5px 5px 0 #111',
+              cursor: 'pointer',
+              textDecoration: 'none',
+              letterSpacing: '2px',
+              transition: 'transform 0.1s, box-shadow 0.1s'
+            }}>
+              🏆 VIEW FINAL LEADERBOARD
+            </Link>
+          </div>
+        ) : (
+          <>
+            <div className="mystery-prize-text" style={{ 
+              marginTop: '20px', 
+              padding: '10px', 
+              backgroundColor: '#fff', 
+              border: '4px solid #000', 
+              boxShadow: '4px 4px 0 #000', 
+              textAlign: 'center', 
+              maxWidth: '400px', 
+              margin: '20px auto', 
+              fontFamily: "'Bangers', cursive",
+              letterSpacing: '1px', 
+              fontWeight: 'normal',
+              transform: 'rotate(-2deg)'
+            }}>
+              Top 3 clickers on the final day of the event unlock the MYSTERY PRIZES! 🎁 What are they? Keep mashing to find out!
+            </div>
 
-        <button className="support-btn" style={{ marginBottom: '10px' }} onClick={() => setBribePopup(true)}>
-          🤫 Bribe Dev for +1000 Points
-        </button>
+            <button className="support-btn" style={{ marginBottom: '10px' }} onClick={() => setBribePopup(true)}>
+              🤫 Bribe Dev for +1000 Points
+            </button>
+          </>
+        )}
 
       </div>
 

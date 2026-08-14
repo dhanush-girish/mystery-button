@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
 // ═══════════════════════════════════════════════════════════════
 // Same cutoff as server — hardcoded UTC timestamp.
@@ -33,20 +32,13 @@ function EventTimer({ onEventEnd }) {
     return () => clearInterval(id);
   }, [onEventEnd]);
 
-  // ── Event Ended: full-screen overlay ──
+  // ── Event Ended: simple banner (no blocking overlay) ──
   if (ended) {
     return (
-      <div className="event-ended-overlay">
-        <div className="event-ended-card">
-          <h1 className="event-ended-title">🏁 THE EVENT HAS ENDED!</h1>
-          <p className="event-ended-subtitle">Thanks for clicking! 🎉</p>
-          <p className="event-ended-text">
-            Check the leaderboard to see the final results.
-          </p>
-          <Link to="/leaderboard" className="event-ended-link">
-            🏆 VIEW FINAL LEADERBOARD
-          </Link>
-        </div>
+      <div className="event-timer" style={{ backgroundColor: '#ff1493', justifyContent: 'center' }}>
+        <span className="event-timer-label" style={{ color: '#fff', fontSize: '1rem' }}>
+          🏁 EVENT HAS ENDED
+        </span>
       </div>
     );
   }

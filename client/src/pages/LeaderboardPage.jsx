@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import SearchDropdown from '../components/SearchDropdown';
-import EventTimer from '../components/EventTimer';
+
+// Same cutoff as EventTimer — August 14, 2026, 16:00:00 IST = 10:30:00 UTC
+const EVENT_CUTOFF_MS = new Date('2026-08-14T10:30:00.000Z').getTime();
 
 const COURSES = [
   'MSc in Computer Science (Artificial Intelligence)',
@@ -49,7 +51,7 @@ function LeaderboardPage() {
   const [courseFilter, setCourseFilter] = useState('');
   const [batchFilter, setBatchFilter] = useState('');
   const [loading, setLoading] = useState(true);
-  const [eventEnded, setEventEnded] = useState(false);
+  const [eventEnded] = useState(() => Date.now() >= EVENT_CUTOFF_MS);
 
   useEffect(() => {
     if (!isLoaded) return; // wait until auth state is known
@@ -89,16 +91,9 @@ function LeaderboardPage() {
     setBatchFilter('');
   };
 
-  const handleEventEnd = useCallback(() => {
-    setEventEnded(true);
-  }, []);
-
   return (
     <div className="leaderboard-page">
       <div className="leaderboard-card">
-        {/* Event Timer */}
-        <EventTimer onEventEnd={handleEventEnd} />
-
         {/* Header */}
         <div className="leaderboard-header">
           <Link to="/game" className="back-link">
