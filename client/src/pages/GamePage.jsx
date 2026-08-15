@@ -38,6 +38,7 @@ function GamePage() {
   const [chayaPopup, setChayaPopup] = useState(false);
   const [eventEnded, setEventEnded] = useState(false);
   const [captchaData, setCaptchaData] = useState(null);
+  const [isShadowbanned, setIsShadowbanned] = useState(false);
 
   // --- Refs ---
   const pendingClicks = useRef(0);
@@ -73,6 +74,9 @@ function GamePage() {
 
         setScore(data.player.score);
         setPlayerName(data.player.name);
+        if (data.player.is_shadowbanned) {
+          setIsShadowbanned(true);
+        }
 
       } catch (err) {
         console.error('Failed to fetch player:', err);
@@ -399,6 +403,59 @@ function GamePage() {
       {/* CAPTCHA Challenge Overlay */}
       {captchaData && (
         <CaptchaChallenge captchaData={captchaData} onDismiss={handleCaptchaDismiss} />
+      )}
+
+      {/* Shadowban Detection Popup */}
+      {isShadowbanned && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 200000,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          padding: '20px', boxSizing: 'border-box'
+        }}>
+          <div style={{
+            backgroundColor: '#1a1a1a', border: '5px solid #ff0000', boxShadow: '0 0 40px rgba(255,0,0,0.6), 0 0 80px rgba(255,0,0,0.3)',
+            padding: '35px 30px', textAlign: 'center', maxWidth: '450px', width: '95%',
+            borderRadius: '4px', animation: 'pulse-border 2s ease-in-out infinite'
+          }}>
+            <div style={{ fontSize: '3.5rem', marginBottom: '15px' }}>🚫</div>
+            <h2 style={{
+              fontFamily: "'Bangers', cursive", fontSize: '2.2rem', color: '#ff0000',
+              textShadow: '0 0 10px rgba(255,0,0,0.5)', margin: '0 0 20px 0',
+              letterSpacing: '3px', lineHeight: '1.2'
+            }}>
+              CHEATING DETECTED
+            </h2>
+            <p style={{
+              fontFamily: "'Bangers', cursive", fontSize: '1.15rem', color: '#ff6666',
+              marginBottom: '25px', lineHeight: '1.5', letterSpacing: '0.5px'
+            }}>
+              Due to a CAPTCHA fail, bot/autoclicker use is confirmed. You were permanently shadowbanned from the leaderboard.
+            </p>
+            <div style={{
+              width: '100%', height: '2px',
+              background: 'linear-gradient(90deg, transparent, #ff0000, transparent)',
+              marginBottom: '20px'
+            }}></div>
+            <Link to="/leaderboard" style={{
+              display: 'inline-block', fontFamily: "'Bangers', cursive", fontSize: '1.3rem',
+              padding: '12px 25px', backgroundColor: '#333', color: '#ff6666',
+              border: '3px solid #ff0000', boxShadow: '0 0 15px rgba(255,0,0,0.3)',
+              cursor: 'pointer', textDecoration: 'none', letterSpacing: '2px',
+              transition: 'all 0.2s ease', borderRadius: '2px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#ff0000';
+              e.currentTarget.style.color = '#fff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#333';
+              e.currentTarget.style.color = '#ff6666';
+            }}>
+              🏆 VIEW LEADERBOARD
+            </Link>
+          </div>
+        </div>
       )}
 
       {/* Milestone Popup */}

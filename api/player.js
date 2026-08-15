@@ -56,7 +56,7 @@ export default async function handler(req, res) {
           course: p.course,
           batch: p.batch,
           score: displayScore,
-          // Anti-cheat fields deliberately omitted
+          is_shadowbanned: isBanned,
         },
         event_ended: isEventEnded(),
         event_cutoff_utc: EVENT_CUTOFF_UTC.toISOString(),
