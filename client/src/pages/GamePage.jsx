@@ -77,6 +77,7 @@ function GamePage() {
   const [captchaData, setCaptchaData] = useState(null);
   const [isShadowbanned, setIsShadowbanned] = useState(false);
   const [demoCaptchaData, setDemoCaptchaData] = useState(null);
+  const [demoScore, setDemoScore] = useState(0);
 
   // --- Refs ---
   const pendingClicks = useRef(0);
@@ -252,8 +253,37 @@ function GamePage() {
 
   // --- Handle button press ---
   const handlePress = useCallback((x, y) => {
-    // Don't accept clicks when CAPTCHA is active or event ended
-    if (captchaData || eventEnded) return;
+    // Don't accept clicks when CAPTCHA is active
+    if (captchaData) return;
+
+    // In demo mode: simple local-only click handling
+    if (isDemoMode) {
+      const now = Date.now();
+      if (now - lastClickTime.current < MIN_CLICK_INTERVAL_MS) return;
+      lastClickTime.current = now;
+
+      setDemoScore((prev) => prev + 1);
+
+      // Spawn +1 particle
+      const id = particleId.current++;
+      setParticles((prev) => [...prev, { id, x, y }]);
+      setTimeout(() => {
+        setParticles((prev) => prev.filter((p) => p.id !== id));
+      }, 1000);
+
+      // Play sound
+      if (!mutedRef.current) {
+        try {
+          const audio = new Audio(`/${selectedSfx}.mp3`);
+          audio.volume = 0.5;
+          audio.play().catch(() => {});
+        } catch (e) {}
+      }
+      return;
+    }
+
+    // Normal mode: Don't accept clicks when event ended
+    if (eventEnded) return;
 
     // Anti-cheat: reject clicks faster than 15 CPS (67ms interval)
     const now = Date.now();
@@ -297,7 +327,7 @@ function GamePage() {
         // Audio not available
       }
     }
-  }, [selectedSfx, captchaData, eventEnded]);
+  }, [selectedSfx, captchaData, eventEnded, isDemoMode]);
 
   // --- CAPTCHA dismiss handler ---
   const handleCaptchaDismiss = useCallback(() => {
@@ -354,18 +384,18 @@ function GamePage() {
         <p className="player-greeting">Go crazy, {playerName}!</p>
 
         <div className="score-display">
-          {currentRank && (
+          {currentRank && !isDemoMode && (
             <span style={{ fontSize: '1.2rem', color: '#555', marginBottom: '10px' }}>
               RANK: #{currentRank}
             </span>
           )}
           <span className="score-label">SCORE</span>
-          <span className="score-value">{score.toLocaleString()}</span>
+          <span className="score-value">{isDemoMode ? demoScore.toLocaleString() : score.toLocaleString()}</span>
         </div>
 
-        <BigRedButton onPress={handlePress} disabled={!!captchaData || eventEnded} />
+        <BigRedButton onPress={handlePress} disabled={!!captchaData || (eventEnded && !isDemoMode)} />
 
-        {eventEnded ? (
+        {eventEnded && !isDemoMode ? (
           <div style={{ 
             marginTop: '20px', 
             padding: '20px', 
@@ -480,7 +510,7 @@ function GamePage() {
         </button>
       )}
 
-      {/* Demo Mode Badge */}
+      {/* Demo Mode Badge + Exit Button */}
       {isDemoMode && (
         <div style={{
           position: 'fixed',
@@ -488,17 +518,44 @@ function GamePage() {
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 99999,
-          background: 'linear-gradient(135deg, #9b59b6, #e74c3c)',
-          color: '#fff',
-          fontFamily: "'Bangers', cursive",
-          fontSize: '1rem',
-          letterSpacing: '2px',
-          padding: '6px 20px',
-          border: '3px solid #111',
-          boxShadow: '4px 4px 0 #111',
-          borderRadius: '2px',
+          display: 'flex',
+          gap: '10px',
+          alignItems: 'center',
         }}>
-          🎬 DEMO MODE
+          <div style={{
+            background: 'linear-gradient(135deg, #9b59b6, #e74c3c)',
+            color: '#fff',
+            fontFamily: "'Bangers', cursive",
+            fontSize: '1rem',
+            letterSpacing: '2px',
+            padding: '6px 20px',
+            border: '3px solid #111',
+            boxShadow: '4px 4px 0 #111',
+            borderRadius: '2px',
+          }}>
+            🎬 DEMO MODE
+          </div>
+          <button
+            onClick={() => {
+              setSearchParams({});
+              setDemoScore(0);
+            }}
+            style={{
+              fontFamily: "'Bangers', cursive",
+              fontSize: '0.9rem',
+              letterSpacing: '1px',
+              padding: '6px 16px',
+              backgroundColor: '#333',
+              color: '#fff',
+              border: '3px solid #111',
+              boxShadow: '3px 3px 0 #111',
+              cursor: 'pointer',
+              borderRadius: '2px',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            ✕ EXIT
+          </button>
         </div>
       )}
 
