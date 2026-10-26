@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@clerk/clerk-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import SearchDropdown from '../components/SearchDropdown';
 
 // Same cutoff as EventTimer — August 14, 2026, 16:00:00 IST = 10:30:00 UTC
 const EVENT_CUTOFF_MS = new Date('2026-08-14T10:30:00.000Z').getTime();
+
+const DEMO_ADMIN_CLERK_ID = 'user_3Hp0nQfdFbIfH3TUEqwJ4pDDckW';
 
 const COURSES = [
   'MSc in Computer Science (Artificial Intelligence)',
@@ -47,11 +49,16 @@ const MEDALS = {
 
 function LeaderboardPage() {
   const { getToken, isSignedIn, isLoaded } = useAuth();
+  const { user } = useUser();
+  const [searchParams] = useSearchParams();
+  const isDemoMode = searchParams.get('demo') === 'true' && user?.id === DEMO_ADMIN_CLERK_ID;
+
   const [players, setPlayers] = useState([]);
   const [courseFilter, setCourseFilter] = useState('');
   const [batchFilter, setBatchFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [eventEnded] = useState(() => Date.now() >= EVENT_CUTOFF_MS);
+  const [showAllPlayers, setShowAllPlayers] = useState(false); // Demo mode toggle
 
   useEffect(() => {
     if (!isLoaded) return; // wait until auth state is known
@@ -62,6 +69,11 @@ function LeaderboardPage() {
         const params = new URLSearchParams();
         if (courseFilter) params.set('course', courseFilter);
         if (batchFilter) params.set('batch', batchFilter);
+
+        // In demo mode with toggle on, request shadowbanned players too
+        if (isDemoMode && showAllPlayers) {
+          params.set('include_shadowbanned', 'true');
+        }
 
         // Send auth token if signed in (enables leaderboard ghosting)
         const headers = {};
@@ -84,7 +96,7 @@ function LeaderboardPage() {
       }
     };
     fetchLeaderboard();
-  }, [courseFilter, batchFilter, isLoaded, isSignedIn, getToken]);
+  }, [courseFilter, batchFilter, isLoaded, isSignedIn, getToken, isDemoMode, showAllPlayers]);
 
   const clearFilters = () => {
     setCourseFilter('');
@@ -94,15 +106,86 @@ function LeaderboardPage() {
   return (
     <div className="leaderboard-page">
       <div className="leaderboard-card">
+        {/* Demo Mode Badge */}
+        {isDemoMode && (
+          <div style={{
+            background: 'linear-gradient(135deg, #9b59b6, #e74c3c)',
+            color: '#fff',
+            fontFamily: "'Bangers', cursive",
+            fontSize: '1rem',
+            letterSpacing: '2px',
+            padding: '6px 20px',
+            border: '3px solid #111',
+            boxShadow: '4px 4px 0 #111',
+            borderRadius: '2px',
+            textAlign: 'center',
+            marginBottom: '15px',
+          }}>
+            🎬 DEMO MODE
+          </div>
+        )}
+
         {/* Header */}
         <div className="leaderboard-header">
-          <Link to="/game" className="back-link">
+          <Link to={isDemoMode ? '/game?demo=true' : '/game'} className="back-link">
             ← BACK TO GAME
           </Link>
           <h1 className="leaderboard-title">
             🏆 {eventEnded ? 'FINAL ' : ''}LEADERBOARD
           </h1>
         </div>
+
+        {/* Demo Mode Toggle — Genuine vs All Players */}
+        {isDemoMode && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '12px',
+            margin: '15px 0',
+            padding: '12px',
+            backgroundColor: '#f8f8f8',
+            border: '3px solid #111',
+            boxShadow: '4px 4px 0 #111',
+          }}>
+            <button
+              onClick={() => setShowAllPlayers(false)}
+              style={{
+                fontFamily: "'Bangers', cursive",
+                fontSize: '1rem',
+                letterSpacing: '1px',
+                padding: '8px 18px',
+                border: '3px solid #111',
+                boxShadow: !showAllPlayers ? '0 0 0 #111' : '3px 3px 0 #111',
+                transform: !showAllPlayers ? 'translateY(3px)' : 'none',
+                cursor: 'pointer',
+                backgroundColor: !showAllPlayers ? '#00cfff' : '#fff',
+                color: !showAllPlayers ? '#fff' : '#333',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              ✅ GENUINE PLAYERS
+            </button>
+            <button
+              onClick={() => setShowAllPlayers(true)}
+              style={{
+                fontFamily: "'Bangers', cursive",
+                fontSize: '1rem',
+                letterSpacing: '1px',
+                padding: '8px 18px',
+                border: '3px solid #111',
+                boxShadow: showAllPlayers ? '0 0 0 #111' : '3px 3px 0 #111',
+                transform: showAllPlayers ? 'translateY(3px)' : 'none',
+                cursor: 'pointer',
+                backgroundColor: showAllPlayers ? '#e74c3c' : '#fff',
+                color: showAllPlayers ? '#fff' : '#333',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              🚫 ALL PLAYERS (+ BANNED)
+            </button>
+          </div>
+        )}
 
         {/* Filters */}
         <div className="leaderboard-filters">
@@ -161,6 +244,7 @@ function LeaderboardPage() {
                   <th>Course</th>
                   <th>Batch</th>
                   <th>Score</th>
+                  {isDemoMode && showAllPlayers && <th>Status</th>}
                 </tr>
               </thead>
               <tbody>
@@ -168,8 +252,16 @@ function LeaderboardPage() {
                   const rank = idx + 1;
                   const medal = MEDALS[rank];
                   const isTop3 = rank <= 3;
+                  const isBanned = player.is_shadowbanned === true;
                   return (
-                    <tr key={rank} className={isTop3 ? `top-rank top-rank-${rank}` : ''}>
+                    <tr
+                      key={rank}
+                      className={isTop3 ? `top-rank top-rank-${rank}` : ''}
+                      style={isBanned ? {
+                        backgroundColor: 'rgba(255, 0, 0, 0.08)',
+                        opacity: 0.7,
+                      } : {}}
+                    >
                       <td className="rank-cell">
                         {medal ? (
                           <span className="medal-rank">
@@ -177,22 +269,39 @@ function LeaderboardPage() {
                           </span>
                         ) : rank}
                       </td>
-                      <td className={isTop3 ? 'top-rank-name' : ''}>{player.name}</td>
+                      <td className={isTop3 ? 'top-rank-name' : ''} style={isBanned ? {
+                        textDecoration: 'line-through',
+                        color: '#cc0000',
+                      } : {}}>
+                        {player.name}
+                        {isBanned && ' 🚫'}
+                      </td>
                       <td className="course-cell">
                         <div className="course-marquee">
                           <span>{player.course}</span>
                         </div>
                       </td>
                       <td>{player.batch}</td>
-                      <td className="score-cell">
+                      <td className="score-cell" style={isBanned ? { color: '#cc0000' } : {}}>
                         {Number(player.score).toLocaleString()}
                       </td>
+                      {isDemoMode && showAllPlayers && (
+                        <td style={{
+                          fontFamily: "'Bangers', cursive",
+                          fontSize: '0.85rem',
+                          letterSpacing: '1px',
+                          color: isBanned ? '#cc0000' : '#27ae60',
+                          fontWeight: 'bold',
+                        }}>
+                          {isBanned ? '🚫 BANNED' : '✅ GENUINE'}
+                        </td>
+                      )}
                     </tr>
                   );
                 })}
                 {players.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="empty-cell">
+                    <td colSpan={isDemoMode && showAllPlayers ? 6 : 5} className="empty-cell">
                       No players found. Be the first to play!
                     </td>
                   </tr>

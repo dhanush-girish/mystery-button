@@ -3,11 +3,14 @@ import { verifyToken } from '@clerk/backend';
 /**
  * Verifies the Clerk JWT from the Authorization header.
  * Returns the userId if valid, or sends a 401 response and returns null.
+ *
+ * @param {boolean} silent - If true, returns null without sending 401 on failure.
+ *                           Useful for optional auth checks (e.g. leaderboard demo mode).
  */
-export async function verifyAuth(req, res) {
+export async function verifyAuth(req, res, silent = false) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'Unauthorized: No token provided' });
+    if (!silent) res.status(401).json({ error: 'Unauthorized: No token provided' });
     return null;
   }
 
@@ -20,7 +23,7 @@ export async function verifyAuth(req, res) {
     return payload.sub; // This is the Clerk userId
   } catch (err) {
     console.error('Token verification failed:', err.message);
-    res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    if (!silent) res.status(401).json({ error: 'Unauthorized: Invalid token' });
     return null;
   }
 }

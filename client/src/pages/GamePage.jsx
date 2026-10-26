@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useAuth } from '@clerk/clerk-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useAuth, useUser } from '@clerk/clerk-react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import BigRedButton from '../components/BigRedButton';
 import PlusOneVFX from '../components/PlusOneVFX';
 import MuteToggle from '../components/MuteToggle';
@@ -13,6 +13,39 @@ const BATCH_INTERVAL_MS = 3000; // Sync score every 3s
 const RANK_INTERVAL_MS = 10000; // Check rank every 10s
 const MIN_CLICK_INTERVAL_MS = 67; // ~15 CPS max — anti-cheat throttle
 
+const DEMO_ADMIN_CLERK_ID = 'user_3Hp0nQfdFbIfH3TUEqwJ4pDDckW';
+
+const SHAPE_TYPES = ['circle', 'star', 'triangle', 'square', 'diamond'];
+
+/** Generate a fake client-side captcha for demo display purposes */
+function generateDemoCaptcha() {
+  const targetShape = SHAPE_TYPES[Math.floor(Math.random() * SHAPE_TYPES.length)];
+  const decoyCount = 2 + Math.floor(Math.random() * 2);
+  const available = SHAPE_TYPES.filter(s => s !== targetShape);
+  const decoys = [];
+  for (let i = 0; i < decoyCount && available.length > 0; i++) {
+    const idx = Math.floor(Math.random() * available.length);
+    decoys.push(available.splice(idx, 1)[0]);
+  }
+  const allShapes = [targetShape, ...decoys];
+  for (let i = allShapes.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allShapes[i], allShapes[j]] = [allShapes[j], allShapes[i]];
+  }
+  const shapes = allShapes.map((shape, idx) => ({
+    type: shape,
+    x: 10 + Math.floor(Math.random() * 65),
+    y: 20 + Math.floor(Math.random() * 50),
+    id: idx,
+  }));
+  return {
+    captcha_id: 'demo-' + Date.now(),
+    target_shape: targetShape,
+    shapes,
+    timeout_ms: 5000,
+  };
+}
+
 const MILESTONES = {
   1000: { image: '1000.jpeg', caption: 'Choodu chaya for the choodu fingers. Keep clicking👍' },
   2500: { image: '2500.jpeg', caption: 'Aliya, thalaruthu! 🥵, Grab this juice👍' },
@@ -22,7 +55,11 @@ const MILESTONES = {
 
 function GamePage() {
   const { getToken } = useAuth();
+  const { user } = useUser();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isDemoMode = searchParams.get('demo') === 'true' && user?.id === DEMO_ADMIN_CLERK_ID;
+  const isAdmin = user?.id === DEMO_ADMIN_CLERK_ID;
 
   // --- State ---
   const [score, setScore] = useState(0);
@@ -39,6 +76,7 @@ function GamePage() {
   const [eventEnded, setEventEnded] = useState(false);
   const [captchaData, setCaptchaData] = useState(null);
   const [isShadowbanned, setIsShadowbanned] = useState(false);
+  const [demoCaptchaData, setDemoCaptchaData] = useState(null);
 
   // --- Refs ---
   const pendingClicks = useRef(0);
@@ -305,7 +343,7 @@ function GamePage() {
           <option value="mario-jump">mario-jump.mp3</option>
           <option value="suuuuuuuuuuuuu">suuuuuuuuuuuuu.mp3</option>
         </select>
-        <Link to="/leaderboard" className="leaderboard-link" style={{ fontSize: '1rem', padding: '6px 12px', whiteSpace: 'nowrap' }}>
+        <Link to={isDemoMode ? '/leaderboard?demo=true' : '/leaderboard'} className="leaderboard-link" style={{ fontSize: '1rem', padding: '6px 12px', whiteSpace: 'nowrap' }}>
           🏆 LEADERBOARD
         </Link>
       </div>
@@ -350,7 +388,7 @@ function GamePage() {
             <p style={{ fontSize: '1.1rem', color: '#555', marginBottom: '15px' }}>
               Your final score: <strong style={{ color: '#ff1493' }}>{score.toLocaleString()}</strong>
             </p>
-            <Link to="/leaderboard" style={{
+            <Link to={isDemoMode ? '/leaderboard?demo=true' : '/leaderboard'} style={{
               display: 'inline-block',
               fontFamily: "'Bangers', cursive",
               fontSize: '1.5rem',
@@ -366,6 +404,29 @@ function GamePage() {
             }}>
               🏆 VIEW FINAL LEADERBOARD
             </Link>
+
+            {/* Admin: Enter Demo Mode button */}
+            {isAdmin && !isDemoMode && (
+              <button
+                style={{
+                  display: 'block',
+                  margin: '15px auto 0',
+                  fontFamily: "'Bangers', cursive",
+                  fontSize: '1.2rem',
+                  padding: '10px 22px',
+                  background: 'linear-gradient(135deg, #9b59b6, #e74c3c)',
+                  color: '#fff',
+                  border: '4px solid #111',
+                  boxShadow: '5px 5px 0 #111',
+                  cursor: 'pointer',
+                  letterSpacing: '2px',
+                  animation: 'pulse-border 2s ease-in-out infinite',
+                }}
+                onClick={() => setSearchParams({ demo: 'true' })}
+              >
+                🎬 ENTER DEMO MODE
+              </button>
+            )}
           </div>
         ) : (
           <>
@@ -394,6 +455,53 @@ function GamePage() {
 
       </div>
 
+      {/* Demo Mode Captcha Preview Button */}
+      {isDemoMode && (
+        <button
+          className="support-btn"
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            zIndex: 99999,
+            backgroundColor: '#9b59b6',
+            background: 'linear-gradient(135deg, #9b59b6, #e74c3c)',
+            color: '#fff',
+            border: '4px solid #111',
+            boxShadow: '5px 5px 0 #111',
+            fontSize: '1.1rem',
+            letterSpacing: '1px',
+            padding: '12px 20px',
+            animation: 'pulse-border 2s ease-in-out infinite',
+          }}
+          onClick={() => setDemoCaptchaData(generateDemoCaptcha())}
+        >
+          🎯 SHOW CAPTCHA
+        </button>
+      )}
+
+      {/* Demo Mode Badge */}
+      {isDemoMode && (
+        <div style={{
+          position: 'fixed',
+          top: '10px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 99999,
+          background: 'linear-gradient(135deg, #9b59b6, #e74c3c)',
+          color: '#fff',
+          fontFamily: "'Bangers', cursive",
+          fontSize: '1rem',
+          letterSpacing: '2px',
+          padding: '6px 20px',
+          border: '3px solid #111',
+          boxShadow: '4px 4px 0 #111',
+          borderRadius: '2px',
+        }}>
+          🎬 DEMO MODE
+        </div>
+      )}
+
       {/* +1 Floating VFX */}
       <PlusOneVFX particles={particles} />
 
@@ -403,6 +511,15 @@ function GamePage() {
       {/* CAPTCHA Challenge Overlay */}
       {captchaData && (
         <CaptchaChallenge captchaData={captchaData} onDismiss={handleCaptchaDismiss} />
+      )}
+
+      {/* Demo CAPTCHA Preview Overlay (no server calls, just visual) */}
+      {demoCaptchaData && (
+        <CaptchaChallenge
+          captchaData={demoCaptchaData}
+          onDismiss={() => setDemoCaptchaData(null)}
+          isDemo={true}
+        />
       )}
 
       {/* Shadowban Detection Popup */}
@@ -437,7 +554,7 @@ function GamePage() {
               background: 'linear-gradient(90deg, transparent, #ff0000, transparent)',
               marginBottom: '20px'
             }}></div>
-            <Link to="/leaderboard" style={{
+            <Link to={isDemoMode ? '/leaderboard?demo=true' : '/leaderboard'} style={{
               display: 'inline-block', fontFamily: "'Bangers', cursive", fontSize: '1.3rem',
               padding: '12px 25px', backgroundColor: '#333', color: '#ff6666',
               border: '3px solid #ff0000', boxShadow: '0 0 15px rgba(255,0,0,0.3)',

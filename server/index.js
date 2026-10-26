@@ -218,10 +218,14 @@ app.post('/api/verify-captcha', requireAuth(), async (req, res) => {
 });
 
 // GET /api/leaderboard — ranked list with optional course/batch filters
+const DEMO_ADMIN_CLERK_ID = 'user_3Hp0nQfdFbIfH3TUEqwJ4pDDckW';
+
 app.get('/api/leaderboard', async (req, res) => {
   try {
-    const { course, batch } = req.query;
+    const { course, batch, include_shadowbanned } = req.query;
 
+    // Check for admin demo mode
+    let isAdminRequest = false;
     let isRequestingUserCheater = false;
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -233,11 +237,18 @@ app.get('/api/leaderboard', async (req, res) => {
         });
         const requestingUserId = payload.sub;
 
-        const playerRows = await sql`
-          SELECT is_shadowbanned FROM players WHERE clerk_id = ${requestingUserId}
-        `;
-        if (playerRows.length > 0 && playerRows[0].is_shadowbanned) {
-          isRequestingUserCheater = true;
+        // Check if this is an admin requesting shadowbanned players
+        if (include_shadowbanned === 'true' && requestingUserId === DEMO_ADMIN_CLERK_ID) {
+          isAdminRequest = true;
+        }
+
+        if (!isAdminRequest) {
+          const playerRows = await sql`
+            SELECT is_shadowbanned FROM players WHERE clerk_id = ${requestingUserId}
+          `;
+          if (playerRows.length > 0 && playerRows[0].is_shadowbanned) {
+            isRequestingUserCheater = true;
+          }
         }
       } catch {
         // Auth failed — continue as normal user
@@ -246,7 +257,33 @@ app.get('/api/leaderboard', async (req, res) => {
 
     let rows;
 
-    if (isRequestingUserCheater) {
+    if (isAdminRequest) {
+      // Admin demo mode: return ALL players with is_shadowbanned flag
+      if (course && batch) {
+        rows = await sql`
+          SELECT name, course, batch, score, is_shadowbanned FROM players
+          WHERE course = ${course} AND batch = ${batch}
+          ORDER BY score DESC LIMIT 100
+        `;
+      } else if (course) {
+        rows = await sql`
+          SELECT name, course, batch, score, is_shadowbanned FROM players
+          WHERE course = ${course}
+          ORDER BY score DESC LIMIT 100
+        `;
+      } else if (batch) {
+        rows = await sql`
+          SELECT name, course, batch, score, is_shadowbanned FROM players
+          WHERE batch = ${batch}
+          ORDER BY score DESC LIMIT 100
+        `;
+      } else {
+        rows = await sql`
+          SELECT name, course, batch, score, is_shadowbanned FROM players
+          ORDER BY score DESC LIMIT 100
+        `;
+      }
+    } else if (isRequestingUserCheater) {
       // Cheater sees everyone (genuine + cheaters) with their effective scores
       if (course && batch) {
         rows = await sql`

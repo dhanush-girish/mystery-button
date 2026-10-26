@@ -57,7 +57,7 @@ function ShapeIcon({ type, size = 55 }) {
   return <div style={styleMap[type] || {}} />;
 }
 
-function CaptchaChallenge({ captchaData, onDismiss }) {
+function CaptchaChallenge({ captchaData, onDismiss, isDemo = false }) {
   const { getToken } = useAuth();
   const [captcha, setCaptcha] = useState(captchaData);
   const [timeLeft, setTimeLeft] = useState(
@@ -76,6 +76,12 @@ function CaptchaChallenge({ captchaData, onDismiss }) {
     if (lockedRef.current) return;
     lockedRef.current = true;
     if (timerRef.current) clearInterval(timerRef.current);
+
+    // In demo mode, just dismiss without any server calls
+    if (isDemo) {
+      onDismiss();
+      return;
+    }
 
     try {
       const token = await getToken();
@@ -154,6 +160,22 @@ function CaptchaChallenge({ captchaData, onDismiss }) {
     <div className="captcha-overlay">
       <div className="captcha-container">
         <h2 className="captcha-title">🎯 QUICK CHALLENGE!</h2>
+
+        {isDemo && (
+          <div style={{
+            background: 'linear-gradient(135deg, #9b59b6, #e74c3c)',
+            color: '#fff',
+            fontFamily: "'Bangers', cursive",
+            fontSize: '0.85rem',
+            letterSpacing: '2px',
+            padding: '4px 14px',
+            border: '2px solid #111',
+            marginBottom: '8px',
+            display: 'inline-block',
+          }}>
+            DEMO PREVIEW
+          </div>
+        )}
 
         {retryMsg && <p className="captcha-retry-msg">{retryMsg}</p>}
 

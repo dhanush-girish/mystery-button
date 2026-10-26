@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import SearchDropdown from '../components/SearchDropdown';
+
+const DEMO_ADMIN_CLERK_ID = 'user_3Hp0nQfdFbIfH3TUEqwJ4pDDckW';
 
 const COURSES = [
   'MSc in Computer Science (Artificial Intelligence)',
@@ -38,11 +40,13 @@ const BATCHES = [
 
 function SetupPage() {
   const { getToken } = useAuth();
+  const { user } = useUser();
+  const isAdmin = user?.id === DEMO_ADMIN_CLERK_ID;
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
   const [course, setCourse] = useState('');
-  const [batch, setBatch] = useState('');
+  const [batch, setBatch] = useState('');6
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -170,6 +174,28 @@ function SetupPage() {
             {submitting ? 'SAVING...' : "LET'S GOOOO!"}
           </button>
         </form>
+
+        {/* Demo Mode Button — admin only */}
+        {isAdmin && (
+          <button
+            type="button"
+            className="submit-button"
+            style={{
+              marginTop: '20px',
+              backgroundColor: '#9b59b6',
+              background: 'linear-gradient(135deg, #9b59b6, #e74c3c)',
+              color: '#fff',
+              border: '4px solid #111',
+              boxShadow: '5px 5px 0 #111',
+              fontSize: '1.3rem',
+              letterSpacing: '2px',
+              animation: 'pulse-border 2s ease-in-out infinite',
+            }}
+            onClick={() => navigate('/game?demo=true')}
+          >
+            🎬 DEMO MODE
+          </button>
+        )}
       </div>
     </div>
   );
