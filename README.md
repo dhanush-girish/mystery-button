@@ -179,7 +179,7 @@ To deploy, import the repo into Vercel and add the same three variables.
 <td align="center" width="50%" valign="top">
 
 **Dhanush Girish**
-<br/>Game, backend, anti-cheat, database and deployment
+<br/>Game and React frontend, Google login (Clerk), serverless backend and API, Neon database, anti-cheat system (shadowban, rate limits, CAPTCHA), leaderboard, rank and event timer, demo mode, and Vercel deployment
 
 [GitHub](https://github.com/dhanush-girish)
 
@@ -187,7 +187,7 @@ To deploy, import the repo into Vercel and add the same three variables.
 <td align="center" width="50%" valign="top">
 
 **Sayandh Raj**
-<br/>Overall maintenance and testing (including testing the anti-cheat and CAPTCHA), documentation and README
+<br/>Overall maintenance and testing (including testing the anti-cheat and CAPTCHA), GitHub and folder handling (repository organization, file structure and pull requests), documentation and README
 
 [GitHub](https://github.com/sayandhsr) · [LinkedIn](https://www.linkedin.com/in/sayandh-raj) · [Kaggle](https://www.kaggle.com/sayandhsr) · [Portfolio](https://sayandh-tech.vercel.app/)
 
