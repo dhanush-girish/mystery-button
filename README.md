@@ -187,7 +187,7 @@ To deploy, import the repo into Vercel and add the same three variables.
 <td align="center" width="50%" valign="top">
 
 **Sayandh Raj**
-<br/>Documentation, README and project visuals (including the sample certificate)
+<br/>Overall maintenance and testing (including testing the anti-cheat and CAPTCHA), documentation and README
 
 [GitHub](https://github.com/sayandhsr) · [LinkedIn](https://www.linkedin.com/in/sayandh-raj) · [Kaggle](https://www.kaggle.com/sayandhsr) · [Portfolio](https://sayandh-tech.vercel.app/)
 
