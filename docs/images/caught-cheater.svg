@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" width="900" height="400" role="img" aria-label="A caught cheater sees a CHEATING DETECTED popup; everyone sees a genuine-only leaderboard">
+  <rect width="900" height="400" fill="#FFF3C4"/>
+  <rect x="4" y="4" width="892" height="392" fill="none" stroke="#111" stroke-width="5"/>
+  <g font-family="Arial,sans-serif" font-weight="bold" fill="#111">
+    <rect x="30" y="30" width="380" height="56" fill="#111"/>
+    <text x="220" y="66" text-anchor="middle" font-family="Impact,'Arial Black',sans-serif" font-size="24" fill="#FFD93D">A CAUGHT CHEATER SEES</text>
+    <rect x="30" y="86" width="380" height="250" fill="#fff" stroke="#111" stroke-width="4"/>
+    <rect x="70" y="120" width="300" height="180" rx="10" fill="#fff" stroke="#E63946" stroke-width="6">
+      <animate attributeName="stroke-width" values="4;9;4" dur="1.2s" repeatCount="indefinite"/></rect>
+    <text x="220" y="170" text-anchor="middle" font-family="Impact,'Arial Black',sans-serif" font-size="24" fill="#E63946">CHEATING DETECTED</text>
+    <text x="220" y="205" text-anchor="middle" font-size="13">Bot / autoclicker use confirmed.</text>
+    <text x="220" y="228" text-anchor="middle" font-size="13">Clicks no longer count towards</text>
+    <text x="220" y="251" text-anchor="middle" font-size="13">the leaderboard.</text>
+    <text x="220" y="322" text-anchor="middle" font-size="12" fill="#777">their clicks go to shadow_score, not score</text>
+
+    <rect x="490" y="30" width="380" height="56" fill="#E63946"/>
+    <text x="680" y="66" text-anchor="middle" font-family="Impact,'Arial Black',sans-serif" font-size="19" fill="#fff">EVERYONE SEES THE SAME BOARD</text>
+    <rect x="490" y="86" width="380" height="250" fill="#fff" stroke="#111" stroke-width="4"/>
+    <rect x="506" y="104" width="348" height="58" rx="6" fill="#FFD93D" stroke="#111" stroke-width="3"/>
+    <text x="526" y="141" font-size="20">1</text><text x="560" y="141" font-size="20">Alice</text><text x="836" y="141" font-size="20" text-anchor="end">12,000</text>
+    <rect x="506" y="176" width="348" height="52" rx="6" fill="#fff" stroke="#111" stroke-width="2"/>
+    <text x="526" y="209" font-size="18">2</text><text x="560" y="209" font-size="18">Bob</text><text x="836" y="209" font-size="18" text-anchor="end">11,500</text>
+    <rect x="506" y="240" width="348" height="52" rx="6" fill="#fff" stroke="#111" stroke-width="2"/>
+    <text x="526" y="273" font-size="18">3</text><text x="560" y="273" font-size="18">Charlie</text><text x="836" y="273" font-size="18" text-anchor="end">10,800</text>
+    <text x="680" y="322" text-anchor="middle" font-size="12" fill="#777">genuine players only (sample data)</text>
+    <text x="450" y="370" text-anchor="middle" font-size="16">Cheaters never make it onto the board.</text>
+  </g>
+</svg>

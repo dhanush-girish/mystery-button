@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1123 794" width="1123" height="794" role="img" aria-label="Sample reward certificate for a Top 3 winner of The Mystery Button">
+<defs>
+  <radialGradient id="paper" cx="50%" cy="45%" r="75%"><stop offset="0" stop-color="#FBF7EA"/><stop offset="1" stop-color="#EADFC2"/></radialGradient>
+  <radialGradient id="gold" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#FFF1A8"/><stop offset=".55" stop-color="#E2B93B"/><stop offset="1" stop-color="#A97C14"/></radialGradient>
+  <pattern id="lines" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 3H6" stroke="#5F7F7A" stroke-width="1.2" opacity=".55"/></pattern>
+</defs>
+<rect width="1123" height="794" fill="url(#paper)"/>
+<!-- ornate border -->
+<rect x="28" y="28" width="1067" height="738" fill="url(#lines)" stroke="#4E6B67" stroke-width="3"/>
+<rect x="62" y="62" width="999" height="670" fill="#FBF7EA" stroke="#4E6B67" stroke-width="4"/>
+<rect x="74" y="74" width="975" height="646" fill="none" stroke="#4E6B67" stroke-width="1.5"/>
+<rect x="84" y="84" width="955" height="626" fill="none" stroke="#B8962E" stroke-width="2"/>
+<g fill="#4E6B67" opacity=".9">
+  <circle cx="62" cy="62" r="20"/><circle cx="1061" cy="62" r="20"/><circle cx="62" cy="732" r="20"/><circle cx="1061" cy="732" r="20"/>
+</g>
+<g fill="#FBF7EA">
+  <circle cx="62" cy="62" r="9"/><circle cx="1061" cy="62" r="9"/><circle cx="62" cy="732" r="9"/><circle cx="1061" cy="732" r="9"/>
+</g>
+
+<!-- watermark -->
+<text x="561.5" y="470" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="bold" font-size="190" fill="#4E6B67" opacity=".06" transform="rotate(-18 561.5 470)">SAMPLE</text>
+
+<g text-anchor="middle" font-family="Georgia,'Times New Roman',serif" fill="#1d1d1d">
+  <text x="561.5" y="196" font-size="86" letter-spacing="4" fill="#111">CERTIFICATE</text>
+  <text x="561.5" y="244" font-size="30" letter-spacing="3">of ACHIEVEMENT</text>
+  <line x1="420" y1="268" x2="703" y2="268" stroke="#B8962E" stroke-width="2"/>
+  <circle cx="561.5" cy="268" r="5" fill="#B8962E"/>
+  <text x="561.5" y="326" font-size="22" letter-spacing="3">THIS CERTIFICATE IS PROUDLY PRESENTED TO</text>
+  <text x="561.5" y="414" font-size="70" font-style="italic" fill="#A97C14" font-family="'Brush Script MT','Snell Roundhand','Apple Chancery',cursive">Sample Winner</text>
+  <line x1="300" y1="436" x2="823" y2="436" stroke="#B8962E" stroke-width="2"/>
+  <text x="561.5" y="478" font-size="20">for securing a TOP 3 position (1st, 2nd or 3rd) on the live leaderboard</text>
+  <text x="561.5" y="508" font-size="20">of The Mystery Button clicker challenge, played fair and square.</text>
+  <text x="561.5" y="538" font-size="16" fill="#555">Event cutoff: August 14, 2026, 4:00 PM IST</text>
+</g>
+
+<!-- left: organizers -->
+<g text-anchor="middle" font-family="Georgia,'Times New Roman',serif" fill="#1d1d1d">
+  <line x1="170" y1="640" x2="420" y2="640" stroke="#111" stroke-width="1.5"/>
+  <text x="295" y="668" font-size="20">Event Organizers</text>
+</g>
+
+<!-- center: seal -->
+<g transform="translate(561.5 612)">
+  <polygon points="62.0,0.0 53.8,4.7 61.1,10.8 52.2,14.0 58.3,21.2 48.9,22.8 53.7,31.0 44.2,31.0 47.5,39.9 38.2,38.2 39.9,47.5 31.0,44.2 31.0,53.7 22.8,48.9 21.2,58.3 14.0,52.2 10.8,61.1 4.7,53.8 0.0,62.0 -4.7,53.8 -10.8,61.1 -14.0,52.2 -21.2,58.3 -22.8,48.9 -31.0,53.7 -31.0,44.2 -39.9,47.5 -38.2,38.2 -47.5,39.9 -44.2,31.0 -53.7,31.0 -48.9,22.8 -58.3,21.2 -52.2,14.0 -61.1,10.8 -53.8,4.7 -62.0,0.0 -53.8,-4.7 -61.1,-10.8 -52.2,-14.0 -58.3,-21.2 -48.9,-22.8 -53.7,-31.0 -44.2,-31.0 -47.5,-39.9 -38.2,-38.2 -39.9,-47.5 -31.0,-44.2 -31.0,-53.7 -22.8,-48.9 -21.2,-58.3 -14.0,-52.2 -10.8,-61.1 -4.7,-53.8 -0.0,-62.0 4.7,-53.8 10.8,-61.1 14.0,-52.2 21.2,-58.3 22.8,-48.9 31.0,-53.7 31.0,-44.2 39.9,-47.5 38.2,-38.2 47.5,-39.9 44.2,-31.0 53.7,-31.0 48.9,-22.8 58.3,-21.2 52.2,-14.0 61.1,-10.8 53.8,-4.7" fill="url(#gold)" stroke="#8a6410" stroke-width="2"/>
+  <circle r="44" fill="none" stroke="#8a6410" stroke-width="2" opacity=".7"/>
+  <text y="-4" text-anchor="middle" font-family="Georgia,serif" font-weight="bold" font-size="26" fill="#6b4c0c">TOP</text>
+  <text y="26" text-anchor="middle" font-family="Georgia,serif" font-weight="bold" font-size="34" fill="#6b4c0c">3</text>
+</g>
+
+<!-- right: game mark -->
+<g transform="translate(830 610)">
+  <circle r="46" cy="5" fill="#111"/>
+  <circle r="42" fill="#E63946" stroke="#111" stroke-width="3"/>
+  <text y="16" text-anchor="middle" font-family="Impact,'Arial Black',sans-serif" font-size="52" fill="#fff" stroke="#111" stroke-width="1.5">?</text>
+  <text y="76" text-anchor="middle" font-family="Impact,'Arial Black',sans-serif" font-size="20" fill="#E63946" letter-spacing="1">THE MYSTERY BUTTON</text>
+</g>
+
+<!-- reference label -->
+<text x="561.5" y="700" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="13" fill="#4E6B67" letter-spacing="2">REFERENCE CERTIFICATE  |  ONE PER TOP 3 WINNER</text>
+</svg>
