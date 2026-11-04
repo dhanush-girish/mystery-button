@@ -1,21 +1,6 @@
-<div align="center">
-
-<img src="docs/images/banner.svg" alt="The Mystery Button" width="100%"/>
-
-<br/>
-
-[![Play Live](https://img.shields.io/badge/🔴_PLAY_THE_GAME-E63946?style=for-the-badge)](https://mystery-button-tau.vercel.app/)
-
-![React](https://img.shields.io/badge/React_19-61DAFB?style=flat-square&logo=react&logoColor=black)
-![Vite](https://img.shields.io/badge/Vite_6-646CFF?style=flat-square&logo=vite&logoColor=white)
-![Node](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white)
-![Neon](https://img.shields.io/badge/Neon_Postgres-00E599?style=flat-square&logo=postgresql&logoColor=black)
-![Clerk](https://img.shields.io/badge/Clerk_Auth-6C47FF?style=flat-square&logo=clerk&logoColor=white)
-![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
+# 🔴 The Mystery Button
 
 **A wacky 90s-style clicker game with a very strict anti-cheat system.**
-
-</div>
 
 > **Live link:** https://mystery-button-tau.vercel.app/
 > The event cutoff (**Aug 14, 2026, 4:00 PM IST**) has passed, so the button no longer scores.
@@ -24,7 +9,7 @@
 
 ## What is this?
 
-Students sign in with Google, smash a big red button as fast as they can, and compete on a live leaderboard. The **top 3 players at the cutoff won Mystery Prizes and a reward certificate** (see [below](#-reward-certificate-sample)).
+Students sign in with Google, smash a big red button as fast as they can, and compete on a live leaderboard. The **top 3 players at the cutoff won Mystery Prizes and a reward certificate** (see [below](#-reward-certificate)).
 
 | | |
 |---|---|
@@ -48,17 +33,7 @@ Students sign in with Google, smash a big red button as fast as they can, and co
 
 ---
 
-## Screens
-
-> Illustrated mockups with sample data.
-
-<div align="center">
-
-| Login | Game | Leaderboard | CAPTCHA |
-|:---:|:---:|:---:|:---:|
-| <img src="docs/images/screen-login.svg" width="210" alt="Login screen"/> | <img src="docs/images/screen-game.svg" width="210" alt="Game screen"/> | <img src="docs/images/screen-leaderboard.svg" width="210" alt="Leaderboard screen"/> | <img src="docs/images/screen-captcha.svg" width="210" alt="CAPTCHA screen"/> |
-
-</div>
+## How it works
 
 ```mermaid
 flowchart LR
@@ -71,13 +46,10 @@ flowchart LR
 
 ---
 
-## 🏅 Reward Certificate (sample)
+## 🏅 Reward Certificate
 
-The **top 3 players** at the cutoff each receive a certificate like the one below. **This is a reference sample:** the name is a placeholder, and each winner's certificate carries their own name.
+Each of the **top 3 players** at the cutoff receives a reward certificate with their own name on it, recognising their Top 3 position in The Mystery Button challenge.
 
-<div align="center">
-<img src="docs/images/reward-certificate.svg" alt="Sample reward certificate given to each top 3 winner" width="85%"/>
-</div>
 
 | Position | Reward |
 |:---:|---|
@@ -90,10 +62,6 @@ The **top 3 players** at the cutoff each receive a certificate like the one belo
 ## 🛡️ How the anti-cheat works
 
 **The idea:** only real, human clicks count. Everything is checked on the **server**, because anything in the browser can be faked.
-
-<div align="center">
-<img src="docs/images/pipeline.svg" alt="The 8-layer anti-cheat pipeline" width="100%"/>
-</div>
 
 | # | Layer | What it does |
 |:-:|---|---|
@@ -109,10 +77,6 @@ The **top 3 players** at the cutoff each receive a certificate like the one belo
 ### What happens to a caught cheater?
 
 Their clicks stop counting, they see a **CHEATING DETECTED** popup on the game page, and they never appear on the leaderboard. Everyone sees the same genuine-only board.
-
-<div align="center">
-<img src="docs/images/caught-cheater.svg" alt="A caught cheater sees a popup; everyone sees the genuine leaderboard" width="100%"/>
-</div>
 
 ### Cheaters vs. the system
 
@@ -214,8 +178,6 @@ To deploy, import the repo into Vercel and add the same three variables.
 <tr>
 <td align="center" width="50%" valign="top">
 
-<a href="https://github.com/dhanush-girish"><img src="https://github.com/dhanush-girish.png?size=120" width="100" alt="Dhanush Girish"/></a>
-
 **Dhanush Girish**
 <br/>Game, backend, anti-cheat, database and deployment
 
@@ -223,8 +185,6 @@ To deploy, import the repo into Vercel and add the same three variables.
 
 </td>
 <td align="center" width="50%" valign="top">
-
-<a href="https://github.com/sayandhsr"><img src="https://github.com/sayandhsr.png?size=120" width="100" alt="Sayandh Raj"/></a>
 
 **Sayandh Raj**
 <br/>Documentation, README and project visuals (including the sample certificate)
